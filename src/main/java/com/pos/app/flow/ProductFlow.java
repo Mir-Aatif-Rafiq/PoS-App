@@ -19,9 +19,8 @@ public class ProductFlow {
         return cs.get(client_id);
     }
 
-    public int getClientId(ProductPojo pp){
-        int client_id = pp.getClient_pojo().getClient_id();
-        return client_id;
+    public String getClientName(ProductPojo pp) {
+        return cs.get(pp.getClient_id()).getClient_name();
     }
 
 }

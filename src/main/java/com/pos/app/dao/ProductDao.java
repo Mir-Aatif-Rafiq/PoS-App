@@ -1,5 +1,6 @@
 package com.pos.app.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -15,7 +16,6 @@ import com.pos.app.pojo.ProductPojo;
 @Repository
 public class ProductDao {
 
-    private static String delete_id = "delete from ProductPojo p where id=:id";
     private static String select_id = "select p from ProductPojo p where id=:id";
     private static String select_all = "select p from ProductPojo p";
 
@@ -27,13 +27,6 @@ public class ProductDao {
     @Transactional
     public void insert(ProductPojo cp) {
         em.persist(cp);
-    }
-
-    @Transactional
-    public int delete(int id) {
-        Query query = em.createQuery(delete_id);
-        query.setParameter("id", id);
-        return query.executeUpdate();
     }
 
     @Transactional
@@ -54,9 +47,17 @@ public class ProductDao {
         ProductPojo temp_pp = this.select(id);
         temp_pp.setProduct_name(pp.getProduct_name());
         temp_pp.setProduct_barcode(pp.getProduct_barcode());
+        temp_pp.setClient_id(pp.getClient_id());
+        temp_pp.setClient_name(pp.getClient_name());
         temp_pp.setProduct_price(pp.getProduct_price());
         temp_pp.setProduct_quantity(pp.getProduct_quantity());
         temp_pp.setProduct_image_link(pp.getProduct_image_link());
+    }
+
+    @Transactional
+    public void delete(int id) {
+        ProductPojo temp_pp = this.select(id);
+        temp_pp.setDeleted_at(LocalDateTime.now());
     }
 
     public TypedQuery<ProductPojo> getQuery(String jpql) {
