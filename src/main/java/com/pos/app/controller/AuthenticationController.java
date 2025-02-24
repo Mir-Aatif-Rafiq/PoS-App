@@ -55,25 +55,6 @@ public class AuthenticationController {
         return ResponseEntity.ok("Login successful!");
     }
 
-
-//    @ApiOperation(value = "Log in a user")
-//    @RequestMapping(path = "/session/login", method = RequestMethod.POST,
-//            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-//    public void login(HttpServletRequest req, /*@ModelAttribute*/ UserLoginForm lf) throws ApiException {
-//        UserPojo up = uls.get(lf.getEmail());
-//        if(!(up != null && uls.validatePassword(up, lf.getPassword()))){
-//            uld.setMessage("Invalid username or password");
-//            return new ModelAndView("redirect:/app");
-//        }
-//
-//        Authentication auth = convert(up);
-//        HttpSession session = req.getSession(true);
-//        SecurityUtil.createContext(session);
-//        SecurityUtil.setAuthentication(auth);
-//        System.out.println("auth done success\n");
-//        return new ModelAndView("redirect:/api");
-//    }
-
     @RequestMapping(path = "/session/logout", method = RequestMethod.GET)
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         request.getSession().invalidate();

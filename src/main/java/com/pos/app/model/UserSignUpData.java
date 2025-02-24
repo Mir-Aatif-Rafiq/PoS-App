@@ -1,22 +1,16 @@
 package com.pos.app.model;
 
-public class UserSignUpData extends  UserSignUpForm{
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+public class UserSignUpData extends UserSignUpForm {
     private int id;
     private String role;
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private LocalDateTime created_at;
+    private LocalDateTime updated_at;
+    private LocalDateTime deleted_at;
 }

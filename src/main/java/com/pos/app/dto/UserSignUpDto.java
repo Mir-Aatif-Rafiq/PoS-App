@@ -29,6 +29,9 @@ public class UserSignUpDto {
         usud.setId(up.getId());
         usud.setPassword(up.getPassword());
         usud.setRole(up.getRole());
+        usud.setCreated_at(up.getCreated_at());
+        usud.setUpdated_at(up.getUpdated_at());
+        usud.setDeleted_at(up.getDeleted_at());
         return usud;
     }
     public void insert(UserSignUpForm usuf) throws ApiException {

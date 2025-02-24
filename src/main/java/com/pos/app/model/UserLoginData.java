@@ -1,5 +1,7 @@
 package com.pos.app.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 
 @Component
+@Getter
+@Setter
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserLoginData implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -17,21 +21,5 @@ public class UserLoginData implements Serializable {
     public UserLoginData() {
         message = "No message";
         email = "No email";
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }
