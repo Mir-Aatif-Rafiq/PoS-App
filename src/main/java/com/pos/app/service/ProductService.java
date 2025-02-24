@@ -17,26 +17,26 @@ public class ProductService {
     @Transactional
     public void insert(ProductPojo pp){
         pd.insert(pp);
-        return;
     }
+
     @Transactional
     public ProductPojo get(int id){
         return pd.select(id);
     }
+
     @Transactional
     public List<ProductPojo> getAll(){
         return pd.selectAll();
     }
+
     @Transactional
     public void update(int id, ProductPojo new_pp){
         pd.update(id,new_pp);
-        return;
     }
+
     @Transactional
     public void delete(int id){
         pd.delete(id);
         return;
     }
-
-
 }
