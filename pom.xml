@@ -29,6 +29,7 @@
         <h2.version>1.4.200</h2.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
+        <lombok.version>1.18.36</lombok.version>
 
         <!-- Jetty configuration -->
         <jetty.version>9.4.21.v20190926</jetty.version>
@@ -93,7 +94,12 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
