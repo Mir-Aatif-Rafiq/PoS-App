@@ -25,6 +25,9 @@ public class ClientDto {
         ClientData cd = new ClientData();
         cd.setName(cp.getClient_name());
         cd.setId(cp.getClient_id());
+        cd.setCreated_at(cp.getCreated_at());
+        cd.setUpdated_at(cp.getUpdated_at());
+        cd.setDeleted_at(cp.getDeleted_at());
         return cd;
     }
 

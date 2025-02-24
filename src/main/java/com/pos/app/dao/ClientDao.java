@@ -1,10 +1,10 @@
 package com.pos.app.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
@@ -15,7 +15,6 @@ import com.pos.app.pojo.ClientPojo;
 @Repository
 public class ClientDao {
 
-    private static String delete_id = "delete from ClientPojo p where id=:id";
     private static String select_id = "select p from ClientPojo p where id=:id";
     private static String select_all = "select p from ClientPojo p";
 
@@ -30,10 +29,9 @@ public class ClientDao {
     }
 
     @Transactional
-    public int delete(int id) {
-        Query query = em.createQuery(delete_id);
-        query.setParameter("id", id);
-        return query.executeUpdate();
+    public void delete(int id) {
+        ClientPojo temp_cp = this.select(id);
+        temp_cp.setDeleted_at(LocalDateTime.now());
     }
 
     @Transactional
