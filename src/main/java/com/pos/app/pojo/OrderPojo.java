@@ -1,73 +1,41 @@
 package com.pos.app.pojo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Entity
-public class OrderPojo {
+@Table(name = "orders")
+@Setter
+@Getter
+public class OrderPojo extends AbstractPojo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "order_id")
-    private OrderDirectoryPojo order_directory;
-//    private int order_id;  // to be generated based on order start time.
-    private int product_barcode;
+    
+    @NotNull(message = "Product barcode cannot be null")
+    @Column(name = "product_barcode")
+    private int productBarcode;
+    
+    @NotNull(message = "Client ID cannot be null")
+    @Column(name = "client_id")
+    private int clientId;
+    
+    @NotNull(message = "Quantity cannot be null")
+    @Min(value = 1, message = "Quantity must be at least 1")
     private int quantity;
-    private int price;
-    private int customer_id;
-    private int date;
-
-    public int getId() {
-        return id;
-    }
-
-    public int getDate() {
-        return date;
-    }
-
-    public void setDate(int date) {
-        this.date = date;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getCustomer_id() {
-        return customer_id;
-    }
-
-    public void setCustomer_id(int customer_id) {
-        this.customer_id = customer_id;
-    }
-
-    public int getProduct_barcode() {
-        return product_barcode;
-    }
-
-    public void setProduct_barcode(int product_barcode) {
-        this.product_barcode = product_barcode;
-    }
-
-    public OrderDirectoryPojo getOrder_directory() {
-        return order_directory;
-    }
-
-    public void setOrder_directory(OrderDirectoryPojo order_directory) {
-        this.order_directory = order_directory;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+    
+    @NotNull(message = "Total price cannot be null")
+    @Min(value = 0, message = "Total price cannot be negative")
+    @Column(name = "total_price")
+    private int totalPrice;
+    
+    @NotNull(message = "Order ID cannot be null")
+    @Column(name = "order_id")
+    private int orderId;
 }
 
 

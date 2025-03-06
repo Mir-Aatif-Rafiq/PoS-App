@@ -18,8 +18,8 @@ public class OrderDao {
     private static String delete_id = "delete from OrderPojo p where id=:id";
     private static String select_id = "select p from OrderPojo p where id=:id";
     private static String select_all = "select p from OrderPojo p";
+    private static String select_order_id = "select p from OrderPojo p where order_id=:order_id";
 
-    private int id;
 
     @PersistenceContext
     private EntityManager em;
@@ -37,10 +37,17 @@ public class OrderDao {
     }
 
     @Transactional
-    public OrderPojo select(int id) {
+    public OrderPojo selectById(int id) {
         TypedQuery<OrderPojo> query = getQuery(select_id);
         query.setParameter("id", id);
         return query.getSingleResult();
+    }
+
+    @Transactional
+    public List<OrderPojo> selectByOrder_id(int id) {
+        TypedQuery<OrderPojo> query = getQuery(select_order_id);
+        query.setParameter("order_id", id);
+        return query.getResultList();
     }
 
     @Transactional
@@ -49,13 +56,6 @@ public class OrderDao {
         return query.getResultList();
     }
 
-    @Transactional  // SUPPOSED TO PUT A ROLLBACK Statement here ****
-    public void update(int id, OrderPojo op) {
-//        OrderPojo temp_op = this.select(id);
-//        temp_op.setAge(op.getAge());
-//        temp_op.setName(op.getName());
-
-    }
 
     public TypedQuery<OrderPojo> getQuery(String jpql) {
         return em.createQuery(jpql, OrderPojo.class);
