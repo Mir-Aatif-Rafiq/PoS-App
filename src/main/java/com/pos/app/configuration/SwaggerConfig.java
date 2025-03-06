@@ -1,17 +1,9 @@
 package com.pos.app.configuration;
 
-import com.google.common.collect.Sets;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.springframework.web.servlet.config.annotation.*;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -39,9 +31,9 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
                 .paths(PathSelectors.any()) // ... context path under given regexp.
                 .build();
 
-                // creates problem for other inputs taking json like products, clients etc
-                //.consumes(Sets.newHashSet(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) // Important for form data
-                //.produces(Sets.newHashSet(MediaType.APPLICATION_JSON_VALUE));
+        // creates problem for other inputs taking json like products, clients etc
+        //.consumes(Sets.newHashSet(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) // Important for form data
+        //.produces(Sets.newHashSet(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Override
@@ -56,12 +48,4 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
         configurer.enable();
     }
 
-    @Bean
-    public ITemplateResolver templateResolver() {
-        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setApplicationContext(applicationContext);
-        resolver.setPrefix("/html/");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        return resolver;
-    }
 }
