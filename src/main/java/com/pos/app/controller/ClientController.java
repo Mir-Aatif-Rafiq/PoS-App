@@ -6,6 +6,8 @@ import com.pos.app.dto.ClientDto;
 import com.pos.app.model.ClientData;
 import com.pos.app.model.ClientForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,31 +17,63 @@ import java.util.List;
 public class ClientController {
 
     @Autowired
-    ClientDto cd;
+    private ClientDto clientDto;
 
-    @ApiOperation(value = "INSERT")
+    @ApiOperation(value = "Insert a new client")
     @RequestMapping(path = "/api/clients", method = RequestMethod.POST)
-    public void insert(@RequestBody ClientForm cf){
-        cd.insert(cf);
+    public ResponseEntity<?> insertClient(@RequestBody ClientForm clientForm) {
+        try {
+            clientDto.insert(clientForm);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Client created successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating client: " + e.getMessage());
+        }
     }
-    @ApiOperation(value = "UPDATE")
-    @RequestMapping(path = "/api/clients/{id}", method = RequestMethod.PUT)
-    public void update(@PathVariable int id,@RequestBody ClientForm new_cf){
-        cd.update(id, new_cf);
+    
+    @ApiOperation(value = "Update an existing client")
+    @RequestMapping(path = "/api/clients/{clientId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateClient(@PathVariable int clientId, @RequestBody ClientForm updatedClientForm) {
+        try {
+            if (clientId <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Client ID must be positive");
+            }
+            
+            clientDto.updateClient(clientId, updatedClientForm);
+            return ResponseEntity.ok("Client updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating client: " + e.getMessage());
+        }
     }
-    @ApiOperation(value = "GET")
-    @RequestMapping(path = "/api/clients/{id}", method = RequestMethod.GET)
-    public ClientData get(@PathVariable int id){
-        return cd.get(id);
+    
+    @ApiOperation(value = "Get client by ID")
+    @RequestMapping(path = "/api/clients/{clientId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getClient(@PathVariable int clientId) {
+        try {
+            if (clientId <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Client ID must be positive");
+            }
+            
+            ClientData clientData = clientDto.getClient(clientId);
+            return ResponseEntity.ok(clientData);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving client: " + e.getMessage());
+        }
     }
-    @ApiOperation(value = "GET ALL")
+    
+    @ApiOperation(value = "Get all clients")
     @RequestMapping(path = "/api/clients", method = RequestMethod.GET)
-    public List<ClientData> getAll(){
-        return cd.getAll();
-    }
-    @ApiOperation(value = "DELETE")
-    @RequestMapping(path = "/api/clients/{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable int id){
-        cd.delete(id);
+    public ResponseEntity<?> getAllClients() {
+        try {
+            List<ClientData> clientDataList = clientDto.getAllClients();
+            return ResponseEntity.ok(clientDataList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving clients: " + e.getMessage());
+        }
     }
 }

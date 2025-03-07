@@ -15,61 +15,125 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.annotation.MultipartConfig;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Api
 @RestController
+@MultipartConfig
 public class ProductController {
 
     @Autowired
-    ProductDto pd;
+    private ProductDto productDto;
+    
     @Autowired
-    ProductService ps;
+    private ProductService productService;
 
+    @ApiOperation(value = "Upload inventory from TSV file")
     @RequestMapping(value = "/api/products/uploadInventory", method = RequestMethod.POST)
     public ResponseEntity<?> uploadInventory(@RequestParam("file") MultipartFile file) {
         try {
-            if (file.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error Parsing TSV File");
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File cannot be empty");
             }
+
+            Path filePath = Paths.get("src/main/resources/uploads/" + file.getOriginalFilename());
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             List<ProductPojo> products = TSVParser.parseTsvFile(file);
-            for(ProductPojo pp : products) {
-                ps.insert(pp);
+
+            if (products.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No products found in file");
             }
-            return ResponseEntity.ok("Parsing Successful!");
+
+            for (ProductPojo productPojo : products) {
+                productService.insertProduct(productPojo);
+            }
+            
+            return ResponseEntity.ok("Successfully imported " + products.size() + " products");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error Parsing TSV File");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error parsing TSV file: " + e.getMessage());
         }
     }
 
-    @ApiOperation(value = "INSERT")
+    @ApiOperation(value = "Insert a new product")
     @RequestMapping(path = "/api/products", method = RequestMethod.POST)
-    public void insert(@RequestBody ProductForm pf){
-        pd.insert(pf);
+    public ResponseEntity<?> insertProduct(@RequestBody ProductForm productForm) {
+        try {
+            productDto.insertProduct(productForm);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Product created successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating product: " + e.getMessage());
+        }
     }
 
-    @ApiOperation(value = "UPDATE")
-    @RequestMapping(path = "/api/products/{id}", method = RequestMethod.PUT)
-    public void update(@PathVariable int id, @RequestBody ProductForm new_pf){
-        pd.update(id, new_pf);
+    @ApiOperation(value = "Update an existing product")
+    @RequestMapping(path = "/api/products/{productId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateProduct(@PathVariable int productId, @RequestBody ProductForm updatedProductForm) {
+        try {
+            if (productId <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product ID must be positive");
+            }
+            
+            productDto.updateProduct(productId, updatedProductForm);
+            return ResponseEntity.ok("Product updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating product: " + e.getMessage());
+        }
     }
 
-    @ApiOperation(value = "GET")
-    @RequestMapping(path = "/api/products/{id}", method = RequestMethod.GET)
-    public ProductData get(@PathVariable int id){
-        return pd.get(id);
+    @ApiOperation(value = "Get product by ID")
+    @RequestMapping(path = "/api/products/{productId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProductById(@PathVariable int productId) {
+        try {
+            if (productId <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product ID must be positive");
+            }
+            
+            ProductData productData = productDto.getProductById(productId);
+            return ResponseEntity.ok(productData);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving product: " + e.getMessage());
+        }
     }
 
-    @ApiOperation(value = "GET ALL")
+    @ApiOperation(value = "Get product by barcode")
+    @RequestMapping(path = "/api/products/barcode/{barcode}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProductByBarcode(@PathVariable int barcode) {
+        try {
+            if (barcode <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Barcode must be positive");
+            }
+            
+            ProductData productData = productDto.getProductByBarcode(barcode);
+            return ResponseEntity.ok(productData);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving product: " + e.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "Get all products")
     @RequestMapping(path = "/api/products", method = RequestMethod.GET)
-    public List<ProductData> getAll(){
-        return pd.getAll();
-    }
-
-    @ApiOperation(value = "DELETE")
-    @RequestMapping(path = "/api/products/{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable int id){
-        pd.delete(id);
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<ProductData> productDataList = productDto.getAllProducts();
+            return ResponseEntity.ok(productDataList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving products: " + e.getMessage());
+        }
     }
 }
