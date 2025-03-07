@@ -14,19 +14,28 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class DaySalesService {
     @Autowired
-    DaySalesFlow daySalesFlow;
+    private DaySalesFlow daySalesFlow;
+    
     @Autowired
-    DaySalesDao daySalesDao;
+    private DaySalesDao daySalesDao;
 
-    @Transactional
-    public void generateSalesReport(ZonedDateTime startDate, ZonedDateTime endDate){
+    public void generateSalesReport(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        
         List<OrderDirectoryPojo> invoicedOrders = daySalesFlow.getOrderByDate(startDate, endDate);
 
         int totalOrders = invoicedOrders.size();
         int totalItemsSold = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalItems).sum();
-        int totalRevenue = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotal_price).sum();
+        int totalRevenue = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalPrice).sum();
 
         DaySalesPojo salesReport = new DaySalesPojo();
         salesReport.setTotalInvoicedOrders(totalOrders);
@@ -37,22 +46,28 @@ public class DaySalesService {
         daySalesDao.insert(salesReport);
     }
 
-    @Transactional
     public void generateDailySalesReport() {
         ZonedDateTime todayStart = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS);
         ZonedDateTime todayEnd = todayStart.plusDays(1).minusNanos(1);
         generateSalesReport(todayStart, todayEnd);
     }
 
-    @Transactional
-    public List<DaySalesPojo> getByDate(ZonedDateTime startDate, ZonedDateTime endDate){
+    public List<DaySalesPojo> getSalesByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        
         return daySalesDao.findByDateRange(startDate, endDate);
     }
 
-    @Scheduled(cron = "0 */3 * * * *")
-    public void runDailySalesReport() {
-        System.out.println("Running daily sales report job...");
-        generateDailySalesReport();
-        System.out.println("Daily sales report job completed.");
-    }
+//    @Scheduled(cron = "0 */3 * * * *")
+//    public void runDailySalesReport() {
+//        System.out.println("Running daily sales report job...");
+//        generateDailySalesReport();
+//        System.out.println("Daily sales report job completed.");
+//    }
 }

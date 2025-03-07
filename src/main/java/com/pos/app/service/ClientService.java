@@ -10,30 +10,40 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class ClientService {
     @Autowired
-    public ClientDao cd;
+    private ClientDao clientDao;
 
-    @Transactional
-    public void insert(ClientPojo cp){
-        cd.insert(cp);
+    public void insertClient(ClientPojo clientPojo) {
+        if (clientPojo == null) {
+            throw new IllegalArgumentException("Client cannot be null");
+        }
+        
+        if (clientPojo.getClientName() == null || clientPojo.getClientName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Client name cannot be empty");
+        }
+        
+        clientDao.insert(clientPojo);
     }
-    @Transactional
-    public ClientPojo get(int id){
-        return cd.select(id);
+    
+    public ClientPojo getClient(int clientId) {
+        return clientDao.select(clientId);
     }
-    @Transactional
-    public List<ClientPojo> getAll(){
-        return cd.selectAll();
+    
+    public List<ClientPojo> getAllClients() {
+        return clientDao.selectAll();
     }
-    @Transactional
-    public void update(int id, ClientPojo new_cp){
-        cd.update(id,new_cp);
+    
+    public void updateClient(int clientId, ClientPojo updatedClientPojo) {
+        if (updatedClientPojo == null) {
+            throw new IllegalArgumentException("Updated client cannot be null");
+        }
+        
+        if (updatedClientPojo.getClientName() == null || updatedClientPojo.getClientName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Client name cannot be empty");
+        }
+        
+        clientDao.update(clientId, updatedClientPojo);
     }
-    @Transactional
-    public void delete(int id){
-        cd.delete(id);
-    }
-
-
 }

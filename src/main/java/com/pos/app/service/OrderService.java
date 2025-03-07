@@ -12,54 +12,81 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class OrderService {
 
     @Autowired
-    public OrderDao od;
+    private OrderDao orderDao;
+    
     @Autowired
-    public OrderDirectoryDao odd;
+    private OrderDirectoryDao orderDirectoryDao;
 
-    @Transactional
-    public void insert(OrderPojo op) {
-        od.insert(op);
+    public void insertOrder(OrderPojo orderPojo) {
+        if (orderPojo == null) {
+            throw new IllegalArgumentException("Order cannot be null");
+        }
+        
+        if (orderPojo.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Order quantity must be positive");
+        }
+        
+        orderDao.insert(orderPojo);
     }
 
-    @Transactional
-    public void insert(OrderDirectoryPojo odp) {
-        odd.insert(odp);
+    public void insertOrderDirectory(OrderDirectoryPojo orderDirectoryPojo) {
+        if (orderDirectoryPojo == null) {
+            throw new IllegalArgumentException("Order directory cannot be null");
+        }
+        
+        if (orderDirectoryPojo.getTotalItems() <= 0) {
+            throw new IllegalArgumentException("Total items must be positive");
+        }
+        
+        orderDirectoryDao.insert(orderDirectoryPojo);
     }
 
-    @Transactional
-    public OrderPojo getOrderById(int id) {
-        return od.selectById(id);
+    public OrderPojo getOrderById(int orderId) {
+        return orderDao.selectById(orderId);
     }
 
-    @Transactional
-    public List<OrderPojo> getOrdersByOrder_id(int id) {
-        return od.selectByOrder_id(id);
+    public List<OrderPojo> getOrdersByOrderId(int orderId) {
+        return orderDao.selectByOrderId(orderId);
     }
 
-    @Transactional
-    public OrderDirectoryPojo get(int id) {
-        return odd.select(id);
+    public OrderDirectoryPojo getOrderDirectory(int orderId) {
+        return orderDirectoryDao.select(orderId);
     }
 
-    @Transactional
-    public List<OrderDirectoryPojo> getAll() {
-        return odd.selectAll();
+    public List<OrderDirectoryPojo> getAllOrderDirectories() {
+        return orderDirectoryDao.selectAll();
     }
 
-    @Transactional
     public List<OrderPojo> getAllOrders() {
-        return od.selectAll();
+        return orderDao.selectAll();
     }
 
-    @Transactional
-    public List<OrderDirectoryPojo> getByDate(ZonedDateTime startDate, ZonedDateTime endDate) {
-        return odd.selectByDate(startDate,endDate);
+    public List<OrderDirectoryPojo> getOrderDirectoriesByDate(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        
+        return orderDirectoryDao.selectByDate(startDate, endDate);
     }
 
-    @Transactional
-    public void update(int total_price , OrderDirectoryPojo odp) { odd.update(total_price,odp);}
+    public void updateOrderDirectoryTotalPrice(int totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
+        if (totalPrice < 0) {
+            throw new IllegalArgumentException("Total price cannot be negative");
+        }
+        
+        if (orderDirectoryPojo == null) {
+            throw new IllegalArgumentException("Order directory cannot be null");
+        }
+        
+        orderDirectoryDao.update(totalPrice, orderDirectoryPojo);
+    }
 }
 

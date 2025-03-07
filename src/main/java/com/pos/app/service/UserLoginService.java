@@ -9,16 +9,27 @@ import javax.transaction.Transactional;
 import java.util.Objects;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class UserLoginService {
     @Autowired
-    private UserDao ud;
+    private UserDao userDao;
 
-    @Transactional
-    public UserPojo get(String email){
-        return ud.select(email);
+    public UserPojo getUserByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        return userDao.select(email);
     }
-    public boolean validatePassword(UserPojo up , String password){
-        return (Objects.equals(up.getPassword(), password));
+    
+    public boolean validatePassword(UserPojo userPojo, String password) {
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        return Objects.equals(userPojo.getPassword(), password);
     }
-
 }

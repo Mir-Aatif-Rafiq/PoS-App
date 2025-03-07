@@ -10,33 +10,60 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class ProductService {
     @Autowired
-    public ProductDao pd;
+    private ProductDao productDao;
 
-    @Transactional
-    public void insert(ProductPojo pp){
-        pd.insert(pp);
+    public void insertProduct(ProductPojo productPojo) {
+        if (productPojo == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
+        
+        if (productPojo.getProductName() == null || productPojo.getProductName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        
+        if (productPojo.getProductBarcode() <= 0) {
+            throw new IllegalArgumentException("Product barcode must be positive");
+        }
+        
+        if (productPojo.getProductPrice() < 0) {
+            throw new IllegalArgumentException("Product price cannot be negative");
+        }
+        
+        productDao.insert(productPojo);
     }
 
-    @Transactional
-    public ProductPojo get(int id){
-        return pd.select(id);
+    public ProductPojo getProductById(int productId) {
+        return productDao.selectById(productId);
     }
 
-    @Transactional
-    public List<ProductPojo> getAll(){
-        return pd.selectAll();
+    public ProductPojo getProductByBarcode(int barcode) {
+        return productDao.selectByProductBarcode(barcode);
     }
 
-    @Transactional
-    public void update(int id, ProductPojo new_pp){
-        pd.update(id,new_pp);
+    public List<ProductPojo> getAllProducts() {
+        return productDao.selectAll();
     }
 
-    @Transactional
-    public void delete(int id){
-        pd.delete(id);
-        return;
+    public void updateProduct(int productId, ProductPojo updatedProductPojo) {
+        if (updatedProductPojo == null) {
+            throw new IllegalArgumentException("Updated product cannot be null");
+        }
+        
+        if (updatedProductPojo.getProductName() == null || updatedProductPojo.getProductName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        
+        if (updatedProductPojo.getProductBarcode() <= 0) {
+            throw new IllegalArgumentException("Product barcode must be positive");
+        }
+        
+        if (updatedProductPojo.getProductPrice() < 0) {
+            throw new IllegalArgumentException("Product price cannot be negative");
+        }
+        
+        productDao.update(productId, updatedProductPojo);
     }
 }

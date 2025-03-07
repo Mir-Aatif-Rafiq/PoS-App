@@ -11,46 +11,66 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional(rollbackOn = Exception.class)
 public class UserSignUpService {
     @Autowired
-    private UserDao ud;
+    private UserDao userDao;
 
-    @Transactional
-    public void insert(UserPojo up) throws ApiException {
-        UserPojo t_up = ud.select(up.getEmail());
-        if (t_up != null) {
+    public void insertUser(UserPojo userPojo) throws ApiException {
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        
+        if (userPojo.getEmail() == null || userPojo.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        if (userPojo.getPassword() == null || userPojo.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        
+        UserPojo existingUser = userDao.select(userPojo.getEmail());
+        if (existingUser != null) {
             throw new ApiException("User with given email already exists");
         }
-        if(EmailChecker.checkAdminEmail(up.getEmail())){
-            up.setRole("admin");
+        
+        if (EmailChecker.checkAdminEmail(userPojo.getEmail())) {
+            userPojo.setRole("admin");
         }
-        ud.insert(up);
+        
+        userDao.insert(userPojo);
     }
-    @Transactional
-    public UserPojo get(int id){
-        return ud.select(id);
+    
+    public UserPojo getUserById(int userId) {
+        return userDao.select(userId);
     }
-    @Transactional
-    public UserPojo get(String email){
-        return ud.select(email);
+    
+    public UserPojo getUserByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        return userDao.select(email);
     }
 
-    @Transactional
-    public List<UserPojo> getAll(){
-        return ud.selectAll();
+    public List<UserPojo> getAllUsers() {
+        return userDao.selectAll();
     }
-    // should i keep the functionality of changing the email
-    public void update(String email, UserPojo new_up){
-        UserPojo up = ud.select(email);
-        //up.getEmail(new_up.getEmail());
-        up.setPassword(new_up.getPassword());
-    }
-    @Transactional
-    public void delete(int id){
-        ud.delete(id);
-    }
-    @Transactional
-    public void delete(String email){
-        ud.delete(email);
+    
+    public void updateUserPassword(String email, String newPassword) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+        
+        UserPojo userPojo = userDao.select(email);
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+        
+        userPojo.setPassword(newPassword);
     }
 }
