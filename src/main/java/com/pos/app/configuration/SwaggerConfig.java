@@ -28,12 +28,8 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
         return new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
                 .select().apis(RequestHandlerSelectors.basePackage(PACKAGE_CONTROLLER))
-                .paths(PathSelectors.any()) // ... context path under given regexp.
+                .paths(PathSelectors.any())
                 .build();
-
-        // creates problem for other inputs taking json like products, clients etc
-        //.consumes(Sets.newHashSet(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) // Important for form data
-        //.produces(Sets.newHashSet(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Override

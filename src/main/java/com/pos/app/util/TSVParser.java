@@ -18,12 +18,12 @@ public class TSVParser {
                 String[] fields = line.split("\t");
                 if (fields.length >= 6) {
                     ProductPojo product = new ProductPojo();
-                    product.setProduct_name(fields[0]);
-                    product.setProduct_barcode(Integer.parseInt(fields[1]));
-                    product.setProduct_price(Integer.parseInt(fields[2]));
-                    product.setProduct_quantity(Integer.parseInt(fields[3]));
-                    product.setClient_id(Integer.parseInt(fields[4]));
-                    product.setProduct_image_link(fields[5]);
+                    product.setProductName(fields[0]);
+                    product.setProductBarcode(Integer.parseInt(fields[1]));
+                    product.setProductPrice(Integer.parseInt(fields[2]));
+                    product.setProductQuantity(Integer.parseInt(fields[3]));
+                    product.setClientId(Integer.parseInt(fields[4]));
+                    product.setProductImageLink(fields[5]);
                     productList.add(product);
                 }
             }
