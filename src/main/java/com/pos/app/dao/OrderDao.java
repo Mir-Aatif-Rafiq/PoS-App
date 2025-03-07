@@ -13,52 +13,45 @@ import org.springframework.stereotype.Repository;
 import com.pos.app.pojo.OrderPojo;
 
 @Repository
-public class OrderDao {
+@Transactional(rollbackOn = Exception.class)
+public class OrderDao extends AbstractDao {
 
-    private static String delete_id = "delete from OrderPojo p where id=:id";
-    private static String select_id = "select p from OrderPojo p where id=:id";
-    private static String select_all = "select p from OrderPojo p";
-    private static String select_order_id = "select p from OrderPojo p where order_id=:order_id";
-
+    private static final String DELETE_BY_ID = "delete from OrderPojo o where id=:id";
+    private static final String SELECT_BY_ID = "select o from OrderPojo o where id=:id";
+    private static final String SELECT_ALL = "select o from OrderPojo o";
+    private static final String SELECT_BY_ORDER_ID = "select o from OrderPojo o where orderId=:orderId";
 
     @PersistenceContext
     private EntityManager em;
 
-    @Transactional
-    public void insert(OrderPojo op) {
-        em.persist(op);
+    public void insert(OrderPojo orderPojo) {
+        em.persist(orderPojo);
     }
 
-    @Transactional
-    public int delete(int id) {
-        Query query = em.createQuery(delete_id);
-        query.setParameter("id", id);
+    public int delete(int orderId) {
+        Query query = em.createQuery(DELETE_BY_ID);
+        query.setParameter("id", orderId);
         return query.executeUpdate();
     }
 
-    @Transactional
-    public OrderPojo selectById(int id) {
-        TypedQuery<OrderPojo> query = getQuery(select_id);
-        query.setParameter("id", id);
+    public OrderPojo selectById(int orderId) {
+        TypedQuery<OrderPojo> query = getQuery(SELECT_BY_ID);
+        query.setParameter("id", orderId);
         return query.getSingleResult();
     }
 
-    @Transactional
-    public List<OrderPojo> selectByOrder_id(int id) {
-        TypedQuery<OrderPojo> query = getQuery(select_order_id);
-        query.setParameter("order_id", id);
+    public List<OrderPojo> selectByOrderId(int orderId) {
+        TypedQuery<OrderPojo> query = getQuery(SELECT_BY_ORDER_ID);
+        query.setParameter("orderId", orderId);
         return query.getResultList();
     }
 
-    @Transactional
     public List<OrderPojo> selectAll() {
-        TypedQuery<OrderPojo> query = getQuery(select_all);
+        TypedQuery<OrderPojo> query = getQuery(SELECT_ALL);
         return query.getResultList();
     }
-
 
     public TypedQuery<OrderPojo> getQuery(String jpql) {
         return em.createQuery(jpql, OrderPojo.class);
     }
-
 }

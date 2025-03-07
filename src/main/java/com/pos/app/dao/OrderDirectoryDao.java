@@ -10,45 +10,42 @@ import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-
 @Repository
-public class OrderDirectoryDao {
+@Transactional(rollbackOn = Exception.class)
+public class OrderDirectoryDao extends AbstractDao {
 
-    private static String select_id = "select p from OrderDirectoryPojo p where order_id=:order_id";
-    private static String select_all = "select p from OrderDirectoryPojo p";
-    private static String select_by_date = "SELECT p FROM OrderDirectoryPojo p WHERE p.created_at BETWEEN :startDate AND :endDate";
+    private static final String SELECT_BY_ORDER_ID = "select od from OrderDirectoryPojo od where orderId=:orderId";
+    private static final String SELECT_ALL = "select od from OrderDirectoryPojo od";
+    private static final String SELECT_BY_DATE = "SELECT od FROM OrderDirectoryPojo od WHERE od.createdAt BETWEEN :startDate AND :endDate";
 
     @PersistenceContext
     private EntityManager em;
 
-    @Transactional
-    public void insert(OrderDirectoryPojo odp) {
-        em.persist(odp);
+    public void insert(OrderDirectoryPojo orderDirectoryPojo) {
+        em.persist(orderDirectoryPojo);
     }
 
-    @Transactional
-    public OrderDirectoryPojo select(int id) {
-        TypedQuery<OrderDirectoryPojo> query = getQuery(select_id);
-        query.setParameter("order_id", id);
+    public OrderDirectoryPojo select(int orderId) {
+        TypedQuery<OrderDirectoryPojo> query = getQuery(SELECT_BY_ORDER_ID);
+        query.setParameter("orderId", orderId);
         return query.getSingleResult();
     }
-    @Transactional
+
     public List<OrderDirectoryPojo> selectByDate(ZonedDateTime startDate, ZonedDateTime endDate) {
-        TypedQuery<OrderDirectoryPojo> query = getQuery(select_by_date);
+        TypedQuery<OrderDirectoryPojo> query = getQuery(SELECT_BY_DATE);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
         return query.getResultList();
     }
 
-    @Transactional
     public List<OrderDirectoryPojo> selectAll() {
-        TypedQuery<OrderDirectoryPojo> query = getQuery(select_all);
+        TypedQuery<OrderDirectoryPojo> query = getQuery(SELECT_ALL);
         return query.getResultList();
     }
-    @Transactional
-    public void update(int total_price, OrderDirectoryPojo odp) {
-        OrderDirectoryPojo temp_odp = select(odp.getOrder_id());
-        temp_odp.setTotal_price(total_price);
+
+    public void update(int totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
+        OrderDirectoryPojo existingOrderDirectory = select(orderDirectoryPojo.getOrderId());
+        existingOrderDirectory.setTotalPrice(totalPrice);
     }
 
     public TypedQuery<OrderDirectoryPojo> getQuery(String jpql) {

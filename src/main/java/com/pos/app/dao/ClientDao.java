@@ -1,6 +1,6 @@
 package com.pos.app.dao;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -13,48 +13,53 @@ import org.springframework.stereotype.Repository;
 import com.pos.app.pojo.ClientPojo;
 
 @Repository
-public class ClientDao {
+@Transactional(rollbackOn = Exception.class)
+public class ClientDao extends AbstractDao {
 
-    private static String select_id = "select p from ClientPojo p where id=:id";
-    private static String select_all = "select p from ClientPojo p";
-
-    private int id;
+    private static final String SELECT_BY_ID = "select c from ClientPojo c where clientId=:clientId";
+    private static final String SELECT_ALL = "select c from ClientPojo c";
+    private static final String COUNT_BY_NAME = "select count(c) from ClientPojo c where clientName=:clientName";
 
     @PersistenceContext
     private EntityManager em;
 
-    @Transactional
-    public void insert(ClientPojo cp) {
-        em.persist(cp);
+    public void insert(ClientPojo clientPojo) {
+        if (clientNameExists(clientPojo.getClientName())) {
+            throw new IllegalArgumentException("Client name already exists: " + clientPojo.getClientName());
+        }
+        
+        em.persist(clientPojo);
     }
 
-    @Transactional
-    public void delete(int id) {
-        ClientPojo temp_cp = this.select(id);
-        temp_cp.setDeleted_at(LocalDateTime.now());
-    }
-
-    @Transactional
-    public ClientPojo select(int id) {
-        TypedQuery<ClientPojo> query = getQuery(select_id);
-        query.setParameter("id", id);
+    public ClientPojo select(int clientId) {
+        TypedQuery<ClientPojo> query = getQuery(SELECT_BY_ID);
+        query.setParameter("clientId", clientId);
         return query.getSingleResult();
     }
 
-    @Transactional
     public List<ClientPojo> selectAll() {
-        TypedQuery<ClientPojo> query = getQuery(select_all);
+        TypedQuery<ClientPojo> query = getQuery(SELECT_ALL);
         return query.getResultList();
     }
 
-    @Transactional  // SUPPOSED TO PUT A ROLLBACK Statement here ****
-    public void update(int id, ClientPojo cp) {
-        ClientPojo temp_cp = this.select(id);
-        temp_cp.setClient_name(cp.getClient_name());
+    public void update(int clientId, ClientPojo clientPojo) {
+        ClientPojo existingClient = this.select(clientId);
+        
+        if (!clientPojo.getClientName().equals(existingClient.getClientName()) && 
+            clientNameExists(clientPojo.getClientName())) {
+            throw new IllegalArgumentException("Cannot update: Client name already exists: " + clientPojo.getClientName());
+        }
+        
+        existingClient.setClientName(clientPojo.getClientName());
+    }
+    
+    public boolean clientNameExists(String clientName) {
+        TypedQuery<Long> query = em.createQuery(COUNT_BY_NAME, Long.class);
+        query.setParameter("clientName", clientName);
+        return query.getSingleResult() > 0;
     }
 
     public TypedQuery<ClientPojo> getQuery(String jpql) {
         return em.createQuery(jpql, ClientPojo.class);
     }
-
 }

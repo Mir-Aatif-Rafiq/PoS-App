@@ -1,11 +1,10 @@
 package com.pos.app.dao;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
@@ -14,54 +13,82 @@ import org.springframework.stereotype.Repository;
 import com.pos.app.pojo.ProductPojo;
 
 @Repository
-public class ProductDao {
+@Transactional(rollbackOn = Exception.class)
+public class ProductDao extends AbstractDao {
 
-    private static String select_id = "select p from ProductPojo p where id=:id";
-    private static String select_all = "select p from ProductPojo p";
-
-    private int id;
+    private static final String SELECT_BY_ID = "select p from ProductPojo p where productId=:productId";
+    private static final String SELECT_BY_BARCODE = "select p from ProductPojo p where productBarcode=:productBarcode";
+    private static final String SELECT_ALL = "select p from ProductPojo p";
+    private static final String COUNT_BY_ID = "select count(p) from ProductPojo p where productId=:productId";
+    private static final String COUNT_BY_BARCODE = "select count(p) from ProductPojo p where productBarcode=:productBarcode";
 
     @PersistenceContext
     private EntityManager em;
 
-    @Transactional
-    public void insert(ProductPojo cp) {
-        em.persist(cp);
+    public void insert(ProductPojo productPojo) {
+        if (barcodeExists(productPojo.getProductBarcode())) {
+            throw new IllegalArgumentException("Product barcode already exists: " + productPojo.getProductBarcode());
+        }
+        
+        em.persist(productPojo);
     }
 
-    @Transactional
-    public ProductPojo select(int id) {
-        TypedQuery<ProductPojo> query = getQuery(select_id);
-        query.setParameter("id", id);
-        return query.getSingleResult();
+    public ProductPojo selectById(int productId) {
+        TypedQuery<ProductPojo> query = getQuery(SELECT_BY_ID);
+        query.setParameter("productId", productId);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
-    @Transactional
+    public ProductPojo selectByProductBarcode(int productBarcode) {
+        TypedQuery<ProductPojo> query = getQuery(SELECT_BY_BARCODE);
+        query.setParameter("productBarcode", productBarcode);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public List<ProductPojo> selectAll() {
-        TypedQuery<ProductPojo> query = getQuery(select_all);
+        TypedQuery<ProductPojo> query = getQuery(SELECT_ALL);
         return query.getResultList();
     }
 
-    @Transactional  // SUPPOSED TO PUT A ROLLBACK Statement here ****
-    public void update(int id, ProductPojo pp) {
-        ProductPojo temp_pp = this.select(id);
-        temp_pp.setProduct_name(pp.getProduct_name());
-        temp_pp.setProduct_barcode(pp.getProduct_barcode());
-        temp_pp.setClient_id(pp.getClient_id());
-        temp_pp.setClient_name(pp.getClient_name());
-        temp_pp.setProduct_price(pp.getProduct_price());
-        temp_pp.setProduct_quantity(pp.getProduct_quantity());
-        temp_pp.setProduct_image_link(pp.getProduct_image_link());
+    public void update(int productId, ProductPojo productPojo) {
+        ProductPojo existingProduct = this.selectById(productId);
+        if (existingProduct == null) {
+            throw new IllegalArgumentException("Product not found with ID: " + productId);
+        }
+        
+        if (productPojo.getProductBarcode() != existingProduct.getProductBarcode() && 
+            barcodeExists(productPojo.getProductBarcode())) {
+            throw new IllegalArgumentException("Cannot update: Product barcode already exists: " + productPojo.getProductBarcode());
+        }
+        
+        existingProduct.setProductName(productPojo.getProductName());
+        existingProduct.setProductBarcode(productPojo.getProductBarcode());
+        existingProduct.setClientId(productPojo.getClientId());
+        existingProduct.setClientName(productPojo.getClientName());
+        existingProduct.setProductPrice(productPojo.getProductPrice());
+        existingProduct.setProductQuantity(productPojo.getProductQuantity());
+        existingProduct.setProductImageLink(productPojo.getProductImageLink());
     }
-
-    @Transactional
-    public void delete(int id) {
-        ProductPojo temp_pp = this.select(id);
-        temp_pp.setDeleted_at(LocalDateTime.now());
+    
+    public boolean productExists(int productId) {
+        return exists(productId, COUNT_BY_ID, "productId");
+    }
+    
+    public boolean barcodeExists(int barcode) {
+        TypedQuery<Long> query = em.createQuery(COUNT_BY_BARCODE, Long.class);
+        query.setParameter("productBarcode", barcode);
+        return query.getSingleResult() > 0;
     }
 
     public TypedQuery<ProductPojo> getQuery(String jpql) {
         return em.createQuery(jpql, ProductPojo.class);
     }
-
 }
