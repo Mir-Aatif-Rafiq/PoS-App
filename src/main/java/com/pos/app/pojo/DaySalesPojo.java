@@ -4,12 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "day_sales")
+@Table(name = "Day_sales")
 @Setter
 @Getter
 public class DaySalesPojo {

@@ -4,28 +4,30 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
+@MappedSuperclass
 @Getter
 @Setter
 public abstract class AbstractPojo {
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    @Column(name = "deleted_at", updatable = false)
-    private LocalDateTime deleted_at;
+    private ZonedDateTime createdAt;
+    
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        if (this.created_at == null) {
-            this.created_at = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = ZonedDateTime.now();
         }
     }
+    
     @PreUpdate
     protected void onUpdate() {
-        this.updated_at = LocalDateTime.now();
+        this.updatedAt = ZonedDateTime.now();
     }
-
 }

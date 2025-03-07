@@ -4,11 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "order_directory")
+@Table(name = "Order_directory")
 @Setter
 @Getter
 public class OrderDirectoryPojo extends AbstractPojo {
