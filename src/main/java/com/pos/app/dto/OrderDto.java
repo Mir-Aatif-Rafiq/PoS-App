@@ -17,88 +17,142 @@ import java.util.List;
 public class OrderDto {
 
     @Autowired
-    private OrderService os;
+    private OrderService orderService;
+    
     @Autowired
-    private OrderFlow o_flow;
+    private OrderFlow orderFlow;
 
-    public OrderPojo formToPojo(OrderForm of){
-        OrderPojo op = new OrderPojo();
-        op.setProduct_barcode(of.getProduct_barcode());
-        op.setQuantity(of.getQuantity());
-        op.setTotal_price(o_flow.getTotal_price(of.getProduct_barcode(), of.getQuantity()));
-        op.setClient_id(o_flow.getClient_id(of.getProduct_barcode()));
-        return op;
-    }
-    public OrderData orderPojoToData(OrderPojo op){
-        OrderData od = new OrderData();
-        od.setId(op.getId());
-        od.setName(o_flow.getProductName(op.getProduct_barcode()));
-        od.setProduct_barcode(op.getProduct_barcode());
-        od.setQuantity(op.getQuantity());
-        od.setTotal_price(op.getTotal_price());
-        od.setOrder_id(op.getOrder_id());
-        od.setClient_id(op.getClient_id());
-        od.setCreated_at(op.getCreated_at());
-        return od;
-    }
-    public OrderDirectoryData orderDirectoryPojoToData(OrderDirectoryPojo odp){
-        OrderDirectoryData odd = new OrderDirectoryData();
-        odd.setOrder_id(odp.getOrder_id());
-        odd.setTotal_price(odp.getTotal_price());
-        odd.setTotalItems(odp.getTotalItems());
-        odd.setCreated_at(odp.getCreated_at());
-        return odd;
-    }
-
-    public void insert(List<OrderForm> of) {
-        OrderDirectoryPojo odp = new OrderDirectoryPojo();
-        int total_price = 0;
-        int totalItems = of.size();
-        odp.setTotalItems(totalItems);
-        os.insert(odp);
-        for (OrderForm orderForm : of) {
-            OrderPojo op = formToPojo(orderForm);
-            total_price = op.getTotal_price() + total_price;
-
-            o_flow.reduceInventory(op.getProduct_barcode(),op.getQuantity());
-            op.setOrder_id(odp.getOrder_id());
-            os.insert(op);
+    public OrderPojo formToOrderPojo(OrderForm orderForm) {
+        if (orderForm == null) {
+            throw new IllegalArgumentException("Order form cannot be null");
         }
-        os.update(total_price,odp);
-    }
-
-    public OrderData getOrderById(int id){
-        return orderPojoToData(os.getOrderById(id));
-    }
-
-    public List<OrderData> getOrdersByOrder_id(int order_id){
-        List<OrderPojo> l_op = os.getOrdersByOrder_id(order_id);
-        List<OrderData> l_od= new ArrayList<>();
-        for(OrderPojo orderPojo : l_op){
-            l_od.add(orderPojoToData(orderPojo));
+        
+        if (orderForm.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
         }
-        return l_od;
+        
+        OrderPojo orderPojo = new OrderPojo();
+        orderPojo.setProductBarcode(orderForm.getProductBarcode());
+        orderPojo.setQuantity(orderForm.getQuantity());
+        orderPojo.setTotalPrice(orderFlow.getTotal_price(orderForm.getProductBarcode(), orderForm.getQuantity()));
+        orderPojo.setClientId(orderFlow.getClient_id(orderForm.getProductBarcode()));
+        return orderPojo;
     }
-    public List<OrderData> getAllOrders(){
-        List<OrderPojo> l_op = os.getAllOrders();
-        List<OrderData> l_od= new ArrayList<>();
-        for(OrderPojo orderPojo : l_op){
-            l_od.add(orderPojoToData(orderPojo));
+    
+    public OrderData orderPojoToOrderData(OrderPojo orderPojo) {
+        if (orderPojo == null) {
+            throw new IllegalArgumentException("Order pojo cannot be null");
         }
-        return l_od;
+        
+        OrderData orderData = new OrderData();
+        orderData.setId(orderPojo.getId());
+        orderData.setName(orderFlow.getProductName(orderPojo.getProductBarcode()));
+        orderData.setProductBarcode(orderPojo.getProductBarcode());
+        orderData.setQuantity(orderPojo.getQuantity());
+        orderData.setTotalPrice(orderPojo.getTotalPrice());
+        orderData.setOrderId(orderPojo.getOrderId());
+        orderData.setClientId(orderPojo.getClientId());
+        orderData.setCreatedAt(orderPojo.getCreatedAt());
+        return orderData;
     }
-    public OrderDirectoryData get(int id){
-        return orderDirectoryPojoToData(os.get(id));
+    
+    public OrderDirectoryData orderDirectoryPojoToOrderData(OrderDirectoryPojo orderDirectoryPojo) {
+        if (orderDirectoryPojo == null) {
+            throw new IllegalArgumentException("Order directory pojo cannot be null");
+        }
+        
+        OrderDirectoryData orderDirectoryData = new OrderDirectoryData();
+        orderDirectoryData.setOrderId(orderDirectoryPojo.getOrderId());
+        orderDirectoryData.setTotalPrice(orderDirectoryPojo.getTotalPrice());
+        orderDirectoryData.setTotalItems(orderDirectoryPojo.getTotalItems());
+        orderDirectoryData.setCreatedAt(orderDirectoryPojo.getCreatedAt());
+        return orderDirectoryData;
     }
 
-
-    public List<OrderDirectoryData> getAll(){
-        List<OrderDirectoryPojo> l_op = os.getAll();
-        List<OrderDirectoryData> l_odd = new ArrayList<>();
-        for(OrderDirectoryPojo odp : l_op){
-            OrderDirectoryData odd = orderDirectoryPojoToData(odp);
-            l_odd.add(odd);
+    public void insert(List<OrderForm> orderFormList) {
+        if (orderFormList == null || orderFormList.isEmpty()) {
+            throw new IllegalArgumentException("Order form list cannot be null or empty");
         }
-        return l_odd;
+        
+        OrderDirectoryPojo orderDirectoryPojo = new OrderDirectoryPojo();
+        int totalPrice = 0;
+        int totalItems = orderFormList.size();
+        orderDirectoryPojo.setTotalItems(totalItems);
+        orderService.insertOrderDirectory(orderDirectoryPojo);
+        
+        for (OrderForm orderForm : orderFormList) {
+            OrderPojo orderPojo = formToOrderPojo(orderForm);
+            totalPrice += orderPojo.getTotalPrice();
+
+            orderFlow.reduceInventory(orderPojo.getProductBarcode(), orderPojo.getQuantity());
+            orderPojo.setOrderId(orderDirectoryPojo.getOrderId());
+            orderService.insertOrder(orderPojo);
+        }
+        
+        orderService.updateOrderDirectoryTotalPrice(totalPrice, orderDirectoryPojo);
+    }
+
+    public OrderData getOrderById(int orderId) {
+        if (orderId <= 0) {
+            throw new IllegalArgumentException("Order ID must be positive");
+        }
+        
+        OrderPojo orderPojo = orderService.getOrderById(orderId);
+        if (orderPojo == null) {
+            throw new IllegalArgumentException("Order not found with ID: " + orderId);
+        }
+        
+        return orderPojoToOrderData(orderPojo);
+    }
+
+    public List<OrderData> getOrdersByOrderId(int orderId) {
+        if (orderId <= 0) {
+            throw new IllegalArgumentException("Order ID must be positive");
+        }
+        
+        List<OrderPojo> orderPojoList = orderService.getOrdersByOrderId(orderId);
+        List<OrderData> orderDataList = new ArrayList<>();
+        
+        for (OrderPojo orderPojo : orderPojoList) {
+            orderDataList.add(orderPojoToOrderData(orderPojo));
+        }
+        
+        return orderDataList;
+    }
+    
+    public List<OrderData> getAllOrders() {
+        List<OrderPojo> orderPojoList = orderService.getAllOrders();
+        List<OrderData> orderDataList = new ArrayList<>();
+        
+        for (OrderPojo orderPojo : orderPojoList) {
+            orderDataList.add(orderPojoToOrderData(orderPojo));
+        }
+        
+        return orderDataList;
+    }
+    
+    public OrderDirectoryData getOrderDirectory(int orderId) {
+        if (orderId <= 0) {
+            throw new IllegalArgumentException("Order ID must be positive");
+        }
+        
+        OrderDirectoryPojo orderDirectoryPojo = orderService.getOrderDirectory(orderId);
+        if (orderDirectoryPojo == null) {
+            throw new IllegalArgumentException("Order directory not found with ID: " + orderId);
+        }
+        
+        return orderDirectoryPojoToOrderData(orderDirectoryPojo);
+    }
+
+    public List<OrderDirectoryData> getAllOrderDirectories() {
+        List<OrderDirectoryPojo> orderDirectoryPojoList = orderService.getAllOrderDirectories();
+        List<OrderDirectoryData> orderDirectoryDataList = new ArrayList<>();
+        
+        for (OrderDirectoryPojo orderDirectoryPojo : orderDirectoryPojoList) {
+            OrderDirectoryData orderDirectoryData = orderDirectoryPojoToOrderData(orderDirectoryPojo);
+            orderDirectoryDataList.add(orderDirectoryData);
+        }
+        
+        return orderDirectoryDataList;
     }
 }

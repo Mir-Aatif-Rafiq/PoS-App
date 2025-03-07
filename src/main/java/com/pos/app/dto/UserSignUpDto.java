@@ -14,55 +14,104 @@ import java.util.List;
 @Component
 public class UserSignUpDto {
     @Autowired
-    private UserSignUpService usus;
+    private UserSignUpService userSignUpService;
 
-    public UserPojo formToPojo(UserSignUpForm usuf) {
-        UserPojo up = new UserPojo();
-        up.setEmail(usuf.getEmail());
-        up.setPassword(usuf.getPassword());
-
-        return up;
-    }
-    public UserSignUpData pojoToData(UserPojo up){
-        UserSignUpData usud = new UserSignUpData();
-        usud.setEmail(up.getEmail());
-        usud.setId(up.getId());
-        usud.setPassword(up.getPassword());
-        usud.setRole(up.getRole());
-        usud.setCreated_at(up.getCreated_at());
-        usud.setUpdated_at(up.getUpdated_at());
-        usud.setDeleted_at(up.getDeleted_at());
-        return usud;
-    }
-    public void insert(UserSignUpForm usuf) throws ApiException {
-        usus.insert(formToPojo(usuf));
-    }
-    public UserSignUpData get(int id){
-        return pojoToData(usus.get(id));
-    }
-
-    public UserSignUpData get(String email){
-        return pojoToData(usus.get(email));
-    }
-    public List<UserSignUpData> getAll(){
-        List<UserPojo> l_up = usus.getAll();
-        List<UserSignUpData> l_usud = new ArrayList<>();
-        for(UserPojo up : l_up){
-            UserSignUpData pd = pojoToData(up);
-            l_usud.add(pd);
+    public UserPojo formToPojo(UserSignUpForm userSignUpForm) {
+        if (userSignUpForm == null) {
+            throw new IllegalArgumentException("User signup form cannot be null");
         }
-        return l_usud;
+        
+        if (userSignUpForm.getEmail() == null || userSignUpForm.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        if (userSignUpForm.getName() == null || userSignUpForm.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        
+        if (userSignUpForm.getPassword() == null || userSignUpForm.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        
+        UserPojo userPojo = new UserPojo();
+        userPojo.setEmail(userSignUpForm.getEmail());
+        userPojo.setName(userSignUpForm.getName());
+        userPojo.setPassword(userSignUpForm.getPassword());
+
+        return userPojo;
     }
-    public void update(String email, UserSignUpForm new_pf){
-        usus.update(email,formToPojo(new_pf));
+    
+    public UserSignUpData pojoToData(UserPojo userPojo) {
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User pojo cannot be null");
+        }
+        
+        UserSignUpData userSignUpData = new UserSignUpData();
+        userSignUpData.setEmail(userPojo.getEmail());
+        userSignUpData.setName(userPojo.getName());
+        userSignUpData.setId(userPojo.getId());
+        userSignUpData.setPassword(userPojo.getPassword());
+        userSignUpData.setRole(userPojo.getRole());
+        userSignUpData.setCreatedAt(userPojo.getCreatedAt());
+        userSignUpData.setUpdatedAt(userPojo.getUpdatedAt());
+        return userSignUpData;
+    }
+    
+    public void insertUser(UserSignUpForm userSignUpForm) throws ApiException {
+        if (userSignUpForm == null) {
+            throw new IllegalArgumentException("User signup form cannot be null");
+        }
+        
+        userSignUpService.insertUser(formToPojo(userSignUpForm));
+    }
+    
+    public UserSignUpData getUserById(int userId) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("User ID must be positive");
+        }
+        
+        UserPojo userPojo = userSignUpService.getUserById(userId);
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User not found with ID: " + userId);
+        }
+        
+        return pojoToData(userPojo);
     }
 
-    public void delete(int id){
-        usus.delete(id);
+    public UserSignUpData getUserByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        UserPojo userPojo = userSignUpService.getUserByEmail(email);
+        if (userPojo == null) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+        
+        return pojoToData(userPojo);
     }
-
-    public void delete(String email){
-        usus.delete(email);
+    
+    public List<UserSignUpData> getAllUsers() {
+        List<UserPojo> userPojoList = userSignUpService.getAllUsers();
+        List<UserSignUpData> userSignUpDataList = new ArrayList<>();
+        
+        for (UserPojo userPojo : userPojoList) {
+            UserSignUpData userSignUpData = pojoToData(userPojo);
+            userSignUpDataList.add(userSignUpData);
+        }
+        
+        return userSignUpDataList;
     }
-
+    
+    public void updateUserPassword(String email, String newPassword) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+        
+        userSignUpService.updateUserPassword(email, newPassword);
+    }
 }

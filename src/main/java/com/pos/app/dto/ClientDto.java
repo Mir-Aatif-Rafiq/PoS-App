@@ -14,44 +14,77 @@ import java.util.List;
 public class ClientDto {
     
     @Autowired
-    private ClientService cs;
+    private ClientService clientService;
 
-    public ClientPojo formToPojo(ClientForm cf){
-        ClientPojo cp = new ClientPojo();
-        cp.setClient_name(cf.getName());
-        return cp;
-    }
-    public ClientData pojoToData(ClientPojo cp){
-        ClientData cd = new ClientData();
-        cd.setName(cp.getClient_name());
-        cd.setId(cp.getClient_id());
-        cd.setCreated_at(cp.getCreated_at());
-        cd.setUpdated_at(cp.getUpdated_at());
-        cd.setDeleted_at(cp.getDeleted_at());
-        return cd;
-    }
-
-    public void insert(ClientForm cf){
-        cs.insert(formToPojo(cf));
-    }
-
-    public ClientData get(int id){
-        return pojoToData(cs.get(id));
-    }
-
-    public List<ClientData> getAll(){
-        List<ClientPojo> l_cp = cs.getAll();
-        List<ClientData> l_cd = new ArrayList<>();
-        for(ClientPojo cp : l_cp){
-            ClientData pd = pojoToData(cp);
-            l_cd.add(pd);
+    public ClientPojo formToPojo(ClientForm clientForm) {
+        if (clientForm == null) {
+            throw new IllegalArgumentException("Client form cannot be null");
         }
-        return l_cd;
+        
+        if (clientForm.getName() == null || clientForm.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Client name cannot be empty");
+        }
+        
+        ClientPojo clientPojo = new ClientPojo();
+        clientPojo.setClientName(clientForm.getName());
+        return clientPojo;
     }
-    public void update(int id, ClientForm new_pf){
-        cs.update(id,formToPojo(new_pf));
+    
+    public ClientData pojoToData(ClientPojo clientPojo) {
+        if (clientPojo == null) {
+            throw new IllegalArgumentException("Client pojo cannot be null");
+        }
+        
+        ClientData clientData = new ClientData();
+        clientData.setName(clientPojo.getClientName());
+        clientData.setId(clientPojo.getClientId());
+        clientData.setCreatedAt(clientPojo.getCreatedAt());
+        clientData.setUpdatedAt(clientPojo.getUpdatedAt());
+        return clientData;
     }
-    public void delete(int id){
-        cs.delete(id);
+
+    public void insert(ClientForm clientForm) {
+        if (clientForm == null) {
+            throw new IllegalArgumentException("Client form cannot be null");
+        }
+        
+        clientService.insertClient(formToPojo(clientForm));
+    }
+
+    public ClientData getClient(int clientId) {
+        if (clientId <= 0) {
+            throw new IllegalArgumentException("Client ID must be positive");
+        }
+        
+        ClientPojo clientPojo = clientService.getClient(clientId);
+        if (clientPojo == null) {
+            throw new IllegalArgumentException("Client not found with ID: " + clientId);
+        }
+        
+        return pojoToData(clientPojo);
+    }
+
+    public List<ClientData> getAllClients() {
+        List<ClientPojo> clientPojoList = clientService.getAllClients();
+        List<ClientData> clientDataList = new ArrayList<>();
+        
+        for (ClientPojo clientPojo : clientPojoList) {
+            ClientData clientData = pojoToData(clientPojo);
+            clientDataList.add(clientData);
+        }
+        
+        return clientDataList;
+    }
+    
+    public void updateClient(int clientId, ClientForm updatedClientForm) {
+        if (clientId <= 0) {
+            throw new IllegalArgumentException("Client ID must be positive");
+        }
+        
+        if (updatedClientForm == null) {
+            throw new IllegalArgumentException("Updated client form cannot be null");
+        }
+        
+        clientService.updateClient(clientId, formToPojo(updatedClientForm));
     }
 }

@@ -14,58 +14,118 @@ import java.util.List;
 @Component
 public class ProductDto {
     @Autowired
-    private ProductService ps;
+    private ProductService productService;
+    
     @Autowired
-    private ProductFlow p_flow;
+    private ProductFlow productFlow;
 
-    public ProductPojo formToPojo(ProductForm pf){
-        ProductPojo pp = new ProductPojo();
-        pp.setProduct_name(pf.getProduct_name());
-        pp.setClient_id(pf.getClient_id());
-        pp.setClient_name(p_flow.getClientName(pp));
-        pp.setProduct_price(pf.getProduct_price());
-        pp.setProduct_quantity(pf.getProduct_quantity());
-        return pp;
-    }
-    public ProductData pojoToData(ProductPojo pp){
-        ProductData pd = new ProductData();
-        pd.setProduct_name(pp.getProduct_name());
-        pd.setProduct_id(pp.getProduct_id());
-        pd.setClient_id(pp.getClient_id());
-        pd.setClient_name(p_flow.getClientName(pp));
-        pd.setProduct_price(pp.getProduct_price());
-        pd.setProduct_quantity(pp.getProduct_quantity());
-        pd.setCreated_at(pp.getCreated_at());
-        pd.setUpdated_at(pp.getUpdated_at());
-        pd.setDeleted_at(pp.getDeleted_at());
-        return pd;
-    }
-
-    public void insert(ProductForm pf){
-        ps.insert(formToPojo(pf));
-    }
-
-    public ProductData get(int id){
-        return pojoToData(ps.get(id));
-    }
-
-    public List<ProductData> getAll(){
-        List<ProductPojo> l_pp = ps.getAll();
-        List<ProductData> l_pd = new ArrayList<>();
-        for(ProductPojo pp : l_pp){
-            ProductData pd = pojoToData(pp);
-            l_pd.add(pd);
+    public ProductPojo formToPojo(ProductForm productForm) {
+        if (productForm == null) {
+            throw new IllegalArgumentException("Product form cannot be null");
         }
-        return l_pd;
+        
+        if (productForm.getProductName() == null || productForm.getProductName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        
+        if (productForm.getProductBarcode() <= 0) {
+            throw new IllegalArgumentException("Product barcode must be positive");
+        }
+        
+        if (productForm.getProductPrice() < 0) {
+            throw new IllegalArgumentException("Product price cannot be negative");
+        }
+        
+        if (productForm.getProductQuantity() < 0) {
+            throw new IllegalArgumentException("Product quantity cannot be negative");
+        }
+        
+        ProductPojo productPojo = new ProductPojo();
+        productPojo.setProductName(productForm.getProductName());
+        productPojo.setClientId(productForm.getClientId());
+        productPojo.setProductBarcode(productForm.getProductBarcode());
+        productPojo.setClientName(productFlow.getClientName(productPojo));
+        productPojo.setProductPrice(productForm.getProductPrice());
+        productPojo.setProductQuantity(productForm.getProductQuantity());
+        productPojo.setProductImageLink(productForm.getProductImageLink());
+        return productPojo;
+    }
+    
+    public ProductData pojoToData(ProductPojo productPojo) {
+        if (productPojo == null) {
+            throw new IllegalArgumentException("Product pojo cannot be null");
+        }
+        
+        ProductData productData = new ProductData();
+        productData.setProductName(productPojo.getProductName());
+        productData.setProductId(productPojo.getProductId());
+        productData.setProductBarcode(productPojo.getProductBarcode());
+        productData.setClientId(productPojo.getClientId());
+        productData.setClientName(productFlow.getClientName(productPojo));
+        productData.setProductPrice(productPojo.getProductPrice());
+        productData.setProductQuantity(productPojo.getProductQuantity());
+        productData.setCreatedAt(productPojo.getCreatedAt());
+        productData.setUpdatedAt(productPojo.getUpdatedAt());
+        productData.setProductImageLink(productPojo.getProductImageLink());
+        return productData;
     }
 
-    public void update(int id, ProductForm new_pf){
-        ps.update(id,formToPojo(new_pf));
+    public void insertProduct(ProductForm productForm) {
+        if (productForm == null) {
+            throw new IllegalArgumentException("Product form cannot be null");
+        }
+        
+        productService.insertProduct(formToPojo(productForm));
     }
 
-    public void delete(int id){
-        ps.delete(id);
+    public ProductData getProductById(int productId) {
+        if (productId <= 0) {
+            throw new IllegalArgumentException("Product ID must be positive");
+        }
+        
+        ProductPojo productPojo = productService.getProductById(productId);
+        if (productPojo == null) {
+            throw new IllegalArgumentException("Product not found with ID: " + productId);
+        }
+        
+        return pojoToData(productPojo);
     }
 
+    public ProductData getProductByBarcode(int barcode) {
+        if (barcode <= 0) {
+            throw new IllegalArgumentException("Product barcode must be positive");
+        }
+        
+        ProductPojo productPojo = productService.getProductByBarcode(barcode);
+        if (productPojo == null) {
+            throw new IllegalArgumentException("Product not found with barcode: " + barcode);
+        }
+        
+        return pojoToData(productPojo);
+    }
+
+    public List<ProductData> getAllProducts() {
+        List<ProductPojo> productPojoList = productService.getAllProducts();
+        List<ProductData> productDataList = new ArrayList<>();
+        
+        for (ProductPojo productPojo : productPojoList) {
+            ProductData productData = pojoToData(productPojo);
+            productDataList.add(productData);
+        }
+        
+        return productDataList;
+    }
+
+    public void updateProduct(int productId, ProductForm updatedProductForm) {
+        if (productId <= 0) {
+            throw new IllegalArgumentException("Product ID must be positive");
+        }
+        
+        if (updatedProductForm == null) {
+            throw new IllegalArgumentException("Updated product form cannot be null");
+        }
+        
+        productService.updateProduct(productId, formToPojo(updatedProductForm));
+    }
 }
 

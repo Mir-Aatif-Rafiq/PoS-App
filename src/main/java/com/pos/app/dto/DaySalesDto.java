@@ -1,6 +1,5 @@
 package com.pos.app.dto;
 
-
 import com.pos.app.model.DaySalesData;
 import com.pos.app.pojo.DaySalesPojo;
 import com.pos.app.service.DaySalesService;
@@ -15,9 +14,13 @@ import java.util.List;
 public class DaySalesDto {
 
     @Autowired
-    DaySalesService daySalesService;
+    private DaySalesService daySalesService;
 
-    public DaySalesData pojoToData(DaySalesPojo daySalesPojo){
+    public DaySalesData pojoToData(DaySalesPojo daySalesPojo) {
+        if (daySalesPojo == null) {
+            throw new IllegalArgumentException("Day sales pojo cannot be null");
+        }
+        
         DaySalesData daySalesData = new DaySalesData();
         daySalesData.setId(daySalesPojo.getId());
         daySalesData.setReportDate(daySalesPojo.getReportDate());
@@ -27,17 +30,34 @@ public class DaySalesDto {
         return daySalesData;
     }
 
-    public List<DaySalesData> getByDate(ZonedDateTime startDate, ZonedDateTime endDate){
-        List<DaySalesPojo> daySalesPojoList = daySalesService.getByDate(startDate,endDate);
-        List<DaySalesData> daySalesDataList = new ArrayList<DaySalesData>();
-        for( DaySalesPojo pojo : daySalesPojoList){
-            daySalesDataList.add(pojoToData(pojo));
+    public List<DaySalesData> getSalesByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
         }
+        
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        
+        List<DaySalesPojo> daySalesPojoList = daySalesService.getSalesByDateRange(startDate, endDate);
+        List<DaySalesData> daySalesDataList = new ArrayList<>();
+        
+        for (DaySalesPojo daySalesPojo : daySalesPojoList) {
+            daySalesDataList.add(pojoToData(daySalesPojo));
+        }
+        
         return daySalesDataList;
     }
 
-    public void generateDaySales(ZonedDateTime startDate, ZonedDateTime endDate){
+    public void generateSalesReport(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        
         daySalesService.generateSalesReport(startDate, endDate);
     }
-
 }
