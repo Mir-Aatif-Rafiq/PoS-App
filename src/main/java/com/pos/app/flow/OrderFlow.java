@@ -8,23 +8,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrderFlow {
     @Autowired
-    ProductService ps;
+    ProductService productService;
 
     public int getTotal_price(int barcode, int quantity){
-        ProductPojo pp = ps.getByProduct_barcode(barcode);
-        return pp.getProduct_price()*quantity;
+        ProductPojo productPojo = productService.getProductByBarcode(barcode);
+        return productPojo.getProductPrice()*quantity;
     }
     public int getClient_id(int barcode){
-        ProductPojo pp = ps.getByProduct_barcode(barcode);
-        return pp.getClient_id();
+        ProductPojo productPojo = productService.getProductByBarcode(barcode);
+        return productPojo.getClientId();
     }
     public String getProductName(int barcode) {
-        return ps.getByProduct_barcode(barcode).getProduct_name();
+        return productService.getProductByBarcode(barcode).getProductName();
     }
     public void reduceInventory(int barcode, int quantity){
-        ProductPojo pp = ps.getByProduct_barcode(barcode);
-        pp.setProduct_quantity(pp.getProduct_quantity() - quantity);
-        ps.update(pp.getProduct_id(),pp);
+        ProductPojo productPojo = productService.getProductByBarcode(barcode);
+        productPojo.setProductQuantity(productPojo.getProductQuantity() - quantity);
+        productService.updateProduct(productPojo.getProductId(),productPojo);
     }
 
 }

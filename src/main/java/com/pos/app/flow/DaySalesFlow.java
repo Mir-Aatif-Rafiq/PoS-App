@@ -13,19 +13,7 @@ public class DaySalesFlow {
     @Autowired
     OrderService orderService;
 
-
     public List<OrderDirectoryPojo> getOrderByDate(ZonedDateTime startDate, ZonedDateTime endDate) {
-        return orderService.getByDate(startDate,endDate);
+        return orderService.getOrderDirectoriesByDate(startDate,endDate);
     }
-
-
-//    List<DaySalesPojo> getTotalRevenue(ZonedDateTime startDate, ZonedDateTime endDate){
-//
-//    }
-//    List<DaySalesPojo> getTotalRevenue(ZonedDateTime startDate, ZonedDateTime endDate){
-//
-//    }
-//    List<DaySalesPojo> getTotalRevenue(ZonedDateTime startDate, ZonedDateTime endDate){
-//
-//    }
 }

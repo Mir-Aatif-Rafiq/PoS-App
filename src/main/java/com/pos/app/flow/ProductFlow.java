@@ -11,16 +11,14 @@ import org.springframework.stereotype.Service;
 @Component
 public class ProductFlow {
     @Autowired
-    ClientService cs;
-    @Autowired
-    ProductService ps;
+    ClientService clientService;
 
     public ClientPojo getClientPojo(int client_id){
-        return cs.get(client_id);
+        return clientService.getClient(client_id);
     }
 
-    public String getClientName(ProductPojo pp) {
-        return cs.get(pp.getClient_id()).getClient_name();
+    public String getClientName(ProductPojo productPojo) {
+        return clientService.getClient(productPojo.getClientId()).getClientName();
     }
 
 }
