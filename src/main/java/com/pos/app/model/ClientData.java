@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 @Setter
 @Getter
 public class ClientData extends ClientForm {
-    private int id;
+    private Integer id;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 }

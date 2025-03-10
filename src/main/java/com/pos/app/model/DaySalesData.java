@@ -11,6 +11,6 @@ public class DaySalesData {
     private Integer id;
     private Integer totalInvoicedOrders;
     private Integer totalItemsSold;
-    private Integer totalRevenueGenerated;
+    private Double totalRevenueGenerated;
     private ZonedDateTime reportDate;
 }

@@ -14,19 +14,19 @@ public class ProductForm {
     
     @NotNull(message = "Product barcode cannot be null")
     @Min(value = 1, message = "Product barcode must be positive")
-    private int productBarcode;
+    private Integer productBarcode;
     
     @NotNull(message = "Client ID cannot be null")
     @Min(value = 1, message = "Client ID must be positive")
-    private int clientId;
+    private Integer clientId;
     
     @NotNull(message = "Product price cannot be null")
     @Min(value = 0, message = "Product price cannot be negative")
-    private int productPrice;
+    private Double productPrice;
     
     @NotNull(message = "Product quantity cannot be null")
     @Min(value = 0, message = "Product quantity cannot be negative")
-    private int productQuantity;
+    private Integer productQuantity;
 
     private String productImageLink;
 }

@@ -9,8 +9,8 @@ import java.time.ZonedDateTime;
 @Getter
 public class OrderDirectoryData {
 
-    private int orderId;
-    private int totalPrice;
-    private int totalItems;
+    private Integer orderId;
+    private Double totalPrice;
+    private Integer totalItems;
     private ZonedDateTime createdAt;
 }

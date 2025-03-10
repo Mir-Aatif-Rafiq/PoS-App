@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 @Setter
 @Getter
 public class ProductData extends ProductForm {
-    private int productId;
+    private Integer productId;
     private String clientName;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;

@@ -8,10 +8,10 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public class OrderData extends OrderForm {
-    private int id;
+    private Integer id;
     private String name;
-    private int totalPrice;
-    private int clientId;
-    private int orderId;
+    private Double totalPrice;
+    private Integer clientId;
+    private Integer orderId;
     private ZonedDateTime createdAt;
 }

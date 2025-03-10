@@ -10,9 +10,9 @@ import jakarta.validation.constraints.*;
 public class OrderForm {
     @NotNull(message = "Product barcode cannot be null")
     @Min(value = 1, message = "Product barcode must be positive")
-    private int productBarcode;
+    private Integer productBarcode;
     
     @NotNull(message = "Quantity cannot be null")
     @Min(value = 1, message = "Quantity must be at least 1")
-    private int quantity;
+    private Integer quantity;
 }

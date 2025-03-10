@@ -7,9 +7,8 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-public class UserSignUpData extends UserSignUpForm {
+public class InvoiceData {
     private Integer id;
-    private String role;
+    private String path;
     private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
 }
