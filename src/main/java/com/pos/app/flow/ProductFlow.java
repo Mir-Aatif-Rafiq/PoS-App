@@ -13,7 +13,7 @@ public class ProductFlow {
     @Autowired
     ClientService clientService;
 
-    public ClientPojo getClientPojo(int client_id){
+    public ClientPojo getClientPojo(Integer client_id){
         return clientService.getClient(client_id);
     }
 
