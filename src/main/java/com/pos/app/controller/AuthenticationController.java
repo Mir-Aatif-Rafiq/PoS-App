@@ -58,6 +58,7 @@ public class AuthenticationController {
             Authentication auth = convert(userPojo);
             
             HttpSession session = request.getSession(true);
+            session.setMaxInactiveInterval(5*60);
             SecurityUtil.createContext(session);
             SecurityUtil.setAuthentication(auth);
             

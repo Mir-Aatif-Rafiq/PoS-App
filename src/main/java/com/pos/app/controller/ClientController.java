@@ -34,7 +34,7 @@ public class ClientController {
     
     @ApiOperation(value = "Update an existing client")
     @RequestMapping(path = "/api/clients/{clientId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateClient(@PathVariable int clientId, @RequestBody ClientForm updatedClientForm) {
+    public ResponseEntity<?> updateClient(@PathVariable Integer clientId, @RequestBody ClientForm updatedClientForm) {
         try {
             if (clientId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Client ID must be positive");
@@ -51,7 +51,7 @@ public class ClientController {
     
     @ApiOperation(value = "Get client by ID")
     @RequestMapping(path = "/api/clients/{clientId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getClient(@PathVariable int clientId) {
+    public ResponseEntity<?> getClient(@PathVariable Integer clientId) {
         try {
             if (clientId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Client ID must be positive");

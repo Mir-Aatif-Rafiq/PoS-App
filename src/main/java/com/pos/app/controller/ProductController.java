@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.annotation.MultipartConfig;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api
 @RestController
@@ -39,6 +42,14 @@ public class ProductController {
         try {
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File cannot be empty");
+            }
+
+            List<String> lines = new BufferedReader(new InputStreamReader(file.getInputStream()))
+                    .lines()
+                    .collect(Collectors.toList());
+
+            if (lines.size() > 5000) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File exceeds 5000-row limit.");
             }
 
             Path filePath = Paths.get("src/main/resources/uploads/" + file.getOriginalFilename());
@@ -77,7 +88,7 @@ public class ProductController {
 
     @ApiOperation(value = "Update an existing product")
     @RequestMapping(path = "/api/products/{productId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateProduct(@PathVariable int productId, @RequestBody ProductForm updatedProductForm) {
+    public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody ProductForm updatedProductForm) {
         try {
             if (productId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product ID must be positive");
@@ -111,7 +122,7 @@ public class ProductController {
 
     @ApiOperation(value = "Get product by barcode")
     @RequestMapping(path = "/api/products/barcode/{barcode}", method = RequestMethod.GET)
-    public ResponseEntity<?> getProductByBarcode(@PathVariable int barcode) {
+    public ResponseEntity<?> getProductByBarcode(@PathVariable Integer barcode) {
         try {
             if (barcode <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Barcode must be positive");

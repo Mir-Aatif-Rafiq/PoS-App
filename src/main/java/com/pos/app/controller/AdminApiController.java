@@ -52,7 +52,7 @@ public class AdminApiController {
     
     @ApiOperation(value = "Get user by ID")
     @RequestMapping(path = "/api/user/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUserById(@PathVariable int userId) {
+    public ResponseEntity<?> getUserById(@PathVariable Integer userId) {
         try {
             if (userId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID must be positive");
