@@ -16,7 +16,7 @@ public class ClientPojo extends AbstractPojo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
-    private int clientId;
+    private Integer clientId;
     
     @NotBlank(message = "Client name cannot be blank")
     @Size(min = 2, max = 100, message = "Client name must be between 2 and 100 characters")

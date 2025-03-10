@@ -14,15 +14,15 @@ public class OrderDirectoryPojo extends AbstractPojo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private int orderId;
+    private Integer orderId;
     
     @NotNull(message = "Total items cannot be null")
     @Min(value = 1, message = "Total items must be at least 1")
     @Column(name = "total_items")
-    private int totalItems;
+    private Integer totalItems;
     
     @NotNull(message = "Total price cannot be null")
     @Min(value = 0, message = "Total price cannot be negative")
     @Column(name = "total_price")
-    private int totalPrice;
+    private Double totalPrice;
 }

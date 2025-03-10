@@ -29,7 +29,7 @@ public class DaySalesPojo {
     @NotNull(message = "Total revenue generated cannot be null")
     @Min(value = 0, message = "Total revenue cannot be negative")
     @Column(name = "total_revenue_generated")
-    private Integer totalRevenueGenerated;
+    private Double totalRevenueGenerated;
     
     @Column(name = "report_date")
     private ZonedDateTime reportDate;
