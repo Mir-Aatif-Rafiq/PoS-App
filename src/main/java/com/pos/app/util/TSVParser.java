@@ -20,7 +20,7 @@ public class TSVParser {
                     ProductPojo product = new ProductPojo();
                     product.setProductName(fields[0]);
                     product.setProductBarcode(Integer.parseInt(fields[1]));
-                    product.setProductPrice(Integer.parseInt(fields[2]));
+                    product.setProductPrice(Double.parseDouble(fields[2]));
                     product.setProductQuantity(Integer.parseInt(fields[3]));
                     product.setClientId(Integer.parseInt(fields[4]));
                     product.setProductImageLink(fields[5]);
