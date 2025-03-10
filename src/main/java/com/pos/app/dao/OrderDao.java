@@ -16,7 +16,6 @@ import com.pos.app.pojo.OrderPojo;
 @Transactional(rollbackOn = Exception.class)
 public class OrderDao extends AbstractDao {
 
-    private static final String DELETE_BY_ID = "delete from OrderPojo o where id=:id";
     private static final String SELECT_BY_ID = "select o from OrderPojo o where id=:id";
     private static final String SELECT_ALL = "select o from OrderPojo o";
     private static final String SELECT_BY_ORDER_ID = "select o from OrderPojo o where orderId=:orderId";
@@ -28,19 +27,13 @@ public class OrderDao extends AbstractDao {
         em.persist(orderPojo);
     }
 
-    public int delete(int orderId) {
-        Query query = em.createQuery(DELETE_BY_ID);
-        query.setParameter("id", orderId);
-        return query.executeUpdate();
-    }
-
-    public OrderPojo selectById(int orderId) {
+    public OrderPojo selectById(Integer orderId) {
         TypedQuery<OrderPojo> query = getQuery(SELECT_BY_ID);
         query.setParameter("id", orderId);
         return query.getSingleResult();
     }
 
-    public List<OrderPojo> selectByOrderId(int orderId) {
+    public List<OrderPojo> selectByOrderId(Integer orderId) {
         TypedQuery<OrderPojo> query = getQuery(SELECT_BY_ORDER_ID);
         query.setParameter("orderId", orderId);
         return query.getResultList();

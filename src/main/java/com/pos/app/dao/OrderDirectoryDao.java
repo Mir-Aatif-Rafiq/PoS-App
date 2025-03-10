@@ -25,7 +25,7 @@ public class OrderDirectoryDao extends AbstractDao {
         em.persist(orderDirectoryPojo);
     }
 
-    public OrderDirectoryPojo select(int orderId) {
+    public OrderDirectoryPojo select(Integer orderId) {
         TypedQuery<OrderDirectoryPojo> query = getQuery(SELECT_BY_ORDER_ID);
         query.setParameter("orderId", orderId);
         return query.getSingleResult();
@@ -43,7 +43,7 @@ public class OrderDirectoryDao extends AbstractDao {
         return query.getResultList();
     }
 
-    public void update(int totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
+    public void update(Double totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
         OrderDirectoryPojo existingOrderDirectory = select(orderDirectoryPojo.getOrderId());
         existingOrderDirectory.setTotalPrice(totalPrice);
     }

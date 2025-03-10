@@ -26,7 +26,7 @@ public class UserDao extends AbstractDao {
         em().persist(userPojo);
     }
 
-    public UserPojo select(int userId) {
+    public UserPojo select(Integer userId) {
         TypedQuery<UserPojo> query = getQuery(SELECT_BY_ID, UserPojo.class);
         query.setParameter("id", userId);
         return getSingle(query);
@@ -47,7 +47,7 @@ public class UserDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public boolean userExists(int userId) {
+    public boolean userExists(Integer userId) {
         return exists(userId, COUNT_BY_ID, "id");
     }
     

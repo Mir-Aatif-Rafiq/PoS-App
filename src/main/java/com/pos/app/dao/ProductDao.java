@@ -29,11 +29,11 @@ public class ProductDao extends AbstractDao {
         if (barcodeExists(productPojo.getProductBarcode())) {
             throw new IllegalArgumentException("Product barcode already exists: " + productPojo.getProductBarcode());
         }
-        
+
         em.persist(productPojo);
     }
 
-    public ProductPojo selectById(int productId) {
+    public ProductPojo selectById(Integer productId) {
         TypedQuery<ProductPojo> query = getQuery(SELECT_BY_ID);
         query.setParameter("productId", productId);
         try {
@@ -43,7 +43,7 @@ public class ProductDao extends AbstractDao {
         }
     }
 
-    public ProductPojo selectByProductBarcode(int productBarcode) {
+    public ProductPojo selectByProductBarcode(Integer productBarcode) {
         TypedQuery<ProductPojo> query = getQuery(SELECT_BY_BARCODE);
         query.setParameter("productBarcode", productBarcode);
         try {
@@ -58,15 +58,10 @@ public class ProductDao extends AbstractDao {
         return query.getResultList();
     }
 
-    public void update(int productId, ProductPojo productPojo) {
+    public void update(Integer productId, ProductPojo productPojo) {
         ProductPojo existingProduct = this.selectById(productId);
         if (existingProduct == null) {
             throw new IllegalArgumentException("Product not found with ID: " + productId);
-        }
-        
-        if (productPojo.getProductBarcode() != existingProduct.getProductBarcode() && 
-            barcodeExists(productPojo.getProductBarcode())) {
-            throw new IllegalArgumentException("Cannot update: Product barcode already exists: " + productPojo.getProductBarcode());
         }
         
         existingProduct.setProductName(productPojo.getProductName());
@@ -78,11 +73,11 @@ public class ProductDao extends AbstractDao {
         existingProduct.setProductImageLink(productPojo.getProductImageLink());
     }
     
-    public boolean productExists(int productId) {
+    public boolean productExists(Integer productId) {
         return exists(productId, COUNT_BY_ID, "productId");
     }
     
-    public boolean barcodeExists(int barcode) {
+    public boolean barcodeExists(Integer barcode) {
         TypedQuery<Long> query = em.createQuery(COUNT_BY_BARCODE, Long.class);
         query.setParameter("productBarcode", barcode);
         return query.getSingleResult() > 0;

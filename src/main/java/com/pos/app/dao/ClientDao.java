@@ -31,7 +31,7 @@ public class ClientDao extends AbstractDao {
         em.persist(clientPojo);
     }
 
-    public ClientPojo select(int clientId) {
+    public ClientPojo select(Integer clientId) {
         TypedQuery<ClientPojo> query = getQuery(SELECT_BY_ID);
         query.setParameter("clientId", clientId);
         return query.getSingleResult();
@@ -42,7 +42,7 @@ public class ClientDao extends AbstractDao {
         return query.getResultList();
     }
 
-    public void update(int clientId, ClientPojo clientPojo) {
+    public void update(Integer clientId, ClientPojo clientPojo) {
         ClientPojo existingClient = this.select(clientId);
         
         if (!clientPojo.getClientName().equals(existingClient.getClientName()) && 
