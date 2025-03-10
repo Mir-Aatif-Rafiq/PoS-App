@@ -1,7 +1,8 @@
 package com.pos.app.controller;
 
-import com.pos.app.dto.DaySalesDto;
+import com.pos.app.dto.SalesReportDto;
 import com.pos.app.model.DaySalesData;
+import com.pos.app.model.OrderData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,14 @@ import java.util.List;
 
 @Api
 @RestController
-public class DaySalesController {
+public class SalesReportController {
 
     @Autowired
-    private DaySalesDto daySalesDto;
+    private SalesReportDto salesReportDto;
 
     @ApiOperation(value = "Get sales reports by date range")
     @RequestMapping(path = "/api/daily-sales/{startDate}/{endDate}", method = RequestMethod.GET)
-    public ResponseEntity<?> getSalesByDateRange(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
+    public ResponseEntity<?> getDailySalesByDateRange(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
         try {
             if (startDate == null || endDate == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date and end date cannot be null");
@@ -34,7 +35,7 @@ public class DaySalesController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date cannot be after end date");
             }
             
-            List<DaySalesData> daySalesDataList = daySalesDto.getSalesByDateRange(startDate, endDate);
+            List<DaySalesData> daySalesDataList = salesReportDto.getSalesByDateRange(startDate, endDate);
             return ResponseEntity.ok(daySalesDataList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -46,7 +47,7 @@ public class DaySalesController {
 
     @ApiOperation(value = "Generate sales report for date range")
     @RequestMapping(path = "/api/daily-sales/{startDate}/{endDate}", method = RequestMethod.POST)
-    public ResponseEntity<?> generateSalesReport(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
+    public ResponseEntity<?> generateDailySalesReport(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
         try {
             if (startDate == null || endDate == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date and end date cannot be null");
@@ -56,13 +57,31 @@ public class DaySalesController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date cannot be after end date");
             }
             
-            daySalesDto.generateSalesReport(startDate, endDate);
+            salesReportDto.generateSalesReport(startDate, endDate);
             return ResponseEntity.ok("Sales report generated successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error generating sales report: " + e.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "Generate sales report for client")
+    @RequestMapping(path = "/api/sales-report/{clientId}", method = RequestMethod.POST)
+    public ResponseEntity<?> generateSalesReportForClient(@PathVariable Integer clientId) {
+        try {
+            if (clientId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("clientId cannot be null");
+            }
+
+            List<OrderData> orderDataList = salesReportDto.getSalesReportForClient(clientId);
+            return ResponseEntity.ok(orderDataList);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating sales report: " + e.getMessage());
         }
     }
 }
