@@ -1,11 +1,10 @@
 package com.pos.app.service;
 
 import com.pos.app.dao.DaySalesDao;
-import com.pos.app.flow.DaySalesFlow;
+import com.pos.app.flow.SalesReportFlow;
 import com.pos.app.pojo.DaySalesPojo;
 import com.pos.app.pojo.OrderDirectoryPojo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -17,7 +16,7 @@ import java.util.List;
 @Transactional(rollbackOn = Exception.class)
 public class DaySalesService {
     @Autowired
-    private DaySalesFlow daySalesFlow;
+    private SalesReportFlow salesReportFlow;
     
     @Autowired
     private DaySalesDao daySalesDao;
@@ -31,7 +30,7 @@ public class DaySalesService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
         
-        List<OrderDirectoryPojo> invoicedOrders = daySalesFlow.getOrderByDate(startDate, endDate);
+        List<OrderDirectoryPojo> invoicedOrders = salesReportFlow.getOrderByDate(startDate, endDate);
 
         Integer totalOrders = invoicedOrders.size();
         Integer totalItemsSold = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalItems).sum();

@@ -57,6 +57,10 @@ public class OrderService {
         return orderDao.selectByOrderId(orderId);
     }
 
+    public List<OrderPojo> getOrdersByClientId(Integer clientId) {
+        return orderDao.selectByClientId(clientId);
+    }
+
     public OrderDirectoryPojo getOrderDirectory(Integer orderId) {
         return orderDirectoryDao.select(orderId);
     }
