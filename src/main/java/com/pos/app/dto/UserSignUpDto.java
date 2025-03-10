@@ -5,6 +5,7 @@ import com.pos.app.model.UserSignUpData;
 import com.pos.app.model.UserSignUpForm;
 import com.pos.app.pojo.UserPojo;
 import com.pos.app.service.UserSignUpService;
+import com.pos.app.util.PasswordHasher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,8 @@ public class UserSignUpDto {
         UserPojo userPojo = new UserPojo();
         userPojo.setEmail(userSignUpForm.getEmail());
         userPojo.setName(userSignUpForm.getName());
-        userPojo.setPassword(userSignUpForm.getPassword());
+        String hashedPassword = PasswordHasher.passwordHasher(userSignUpForm.getPassword());
+        userPojo.setPassword(hashedPassword);
 
         return userPojo;
     }
@@ -50,7 +52,6 @@ public class UserSignUpDto {
         userSignUpData.setEmail(userPojo.getEmail());
         userSignUpData.setName(userPojo.getName());
         userSignUpData.setId(userPojo.getId());
-        userSignUpData.setPassword(userPojo.getPassword());
         userSignUpData.setRole(userPojo.getRole());
         userSignUpData.setCreatedAt(userPojo.getCreatedAt());
         userSignUpData.setUpdatedAt(userPojo.getUpdatedAt());
@@ -111,7 +112,7 @@ public class UserSignUpDto {
         if (newPassword == null || newPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("New password cannot be empty");
         }
-        
-        userSignUpService.updateUserPassword(email, newPassword);
+        String hashedPassword = PasswordHasher.passwordHasher(newPassword);
+        userSignUpService.updateUserPassword(email, hashedPassword);
     }
 }

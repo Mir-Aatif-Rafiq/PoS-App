@@ -1,6 +1,8 @@
 package com.pos.app.dto;
 
+import com.pos.app.flow.SalesReportFlow;
 import com.pos.app.model.DaySalesData;
+import com.pos.app.model.OrderData;
 import com.pos.app.pojo.DaySalesPojo;
 import com.pos.app.service.DaySalesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class DaySalesDto {
+public class SalesReportDto {
 
     @Autowired
     private DaySalesService daySalesService;
+    @Autowired
+    private SalesReportFlow salesReportFlow;
 
     public DaySalesData pojoToData(DaySalesPojo daySalesPojo) {
         if (daySalesPojo == null) {
@@ -59,5 +63,13 @@ public class DaySalesDto {
         }
         
         daySalesService.generateSalesReport(startDate, endDate);
+    }
+
+    public List<OrderData> getSalesReportForClient(Integer clientId) {
+        if (clientId == null) {
+            throw new IllegalArgumentException("ClientId cannot be null");
+        }
+
+        return salesReportFlow.getOrderByClientId(clientId);
     }
 }
