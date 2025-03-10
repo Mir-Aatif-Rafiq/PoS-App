@@ -65,7 +65,7 @@ public class UserSignUpDto {
         userSignUpService.insertUser(formToPojo(userSignUpForm));
     }
     
-    public UserSignUpData getUserById(int userId) {
+    public UserSignUpData getUserById(Integer userId) {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }

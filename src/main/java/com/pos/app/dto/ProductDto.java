@@ -78,7 +78,7 @@ public class ProductDto {
         productService.insertProduct(formToPojo(productForm));
     }
 
-    public ProductData getProductById(int productId) {
+    public ProductData getProductById(Integer productId) {
         if (productId <= 0) {
             throw new IllegalArgumentException("Product ID must be positive");
         }
@@ -91,7 +91,7 @@ public class ProductDto {
         return pojoToData(productPojo);
     }
 
-    public ProductData getProductByBarcode(int barcode) {
+    public ProductData getProductByBarcode(Integer barcode) {
         if (barcode <= 0) {
             throw new IllegalArgumentException("Product barcode must be positive");
         }
@@ -116,7 +116,7 @@ public class ProductDto {
         return productDataList;
     }
 
-    public void updateProduct(int productId, ProductForm updatedProductForm) {
+    public void updateProduct(Integer productId, ProductForm updatedProductForm) {
         if (productId <= 0) {
             throw new IllegalArgumentException("Product ID must be positive");
         }

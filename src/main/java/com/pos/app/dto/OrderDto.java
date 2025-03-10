@@ -75,8 +75,8 @@ public class OrderDto {
         }
         
         OrderDirectoryPojo orderDirectoryPojo = new OrderDirectoryPojo();
-        int totalPrice = 0;
-        int totalItems = orderFormList.size();
+        Double totalPrice = 0.0;
+        Integer totalItems = orderFormList.size();
         orderDirectoryPojo.setTotalItems(totalItems);
         orderService.insertOrderDirectory(orderDirectoryPojo);
         
@@ -92,7 +92,7 @@ public class OrderDto {
         orderService.updateOrderDirectoryTotalPrice(totalPrice, orderDirectoryPojo);
     }
 
-    public OrderData getOrderById(int orderId) {
+    public OrderData getOrderById(Integer orderId) {
         if (orderId <= 0) {
             throw new IllegalArgumentException("Order ID must be positive");
         }
@@ -105,7 +105,7 @@ public class OrderDto {
         return orderPojoToOrderData(orderPojo);
     }
 
-    public List<OrderData> getOrdersByOrderId(int orderId) {
+    public List<OrderData> getOrdersByOrderId(Integer orderId) {
         if (orderId <= 0) {
             throw new IllegalArgumentException("Order ID must be positive");
         }
@@ -131,7 +131,7 @@ public class OrderDto {
         return orderDataList;
     }
     
-    public OrderDirectoryData getOrderDirectory(int orderId) {
+    public OrderDirectoryData getOrderDirectory(Integer orderId) {
         if (orderId <= 0) {
             throw new IllegalArgumentException("Order ID must be positive");
         }

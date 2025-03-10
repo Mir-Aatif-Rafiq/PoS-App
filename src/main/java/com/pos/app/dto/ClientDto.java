@@ -51,7 +51,7 @@ public class ClientDto {
         clientService.insertClient(formToPojo(clientForm));
     }
 
-    public ClientData getClient(int clientId) {
+    public ClientData getClient(Integer clientId) {
         if (clientId <= 0) {
             throw new IllegalArgumentException("Client ID must be positive");
         }
@@ -76,7 +76,7 @@ public class ClientDto {
         return clientDataList;
     }
     
-    public void updateClient(int clientId, ClientForm updatedClientForm) {
+    public void updateClient(Integer clientId, ClientForm updatedClientForm) {
         if (clientId <= 0) {
             throw new IllegalArgumentException("Client ID must be positive");
         }
