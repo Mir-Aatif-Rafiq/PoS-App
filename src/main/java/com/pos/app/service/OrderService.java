@@ -8,7 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -45,15 +49,15 @@ public class OrderService {
         orderDirectoryDao.insert(orderDirectoryPojo);
     }
 
-    public OrderPojo getOrderById(int orderId) {
+    public OrderPojo getOrderById(Integer orderId) {
         return orderDao.selectById(orderId);
     }
 
-    public List<OrderPojo> getOrdersByOrderId(int orderId) {
+    public List<OrderPojo> getOrdersByOrderId(Integer orderId) {
         return orderDao.selectByOrderId(orderId);
     }
 
-    public OrderDirectoryPojo getOrderDirectory(int orderId) {
+    public OrderDirectoryPojo getOrderDirectory(Integer orderId) {
         return orderDirectoryDao.select(orderId);
     }
 
@@ -77,7 +81,7 @@ public class OrderService {
         return orderDirectoryDao.selectByDate(startDate, endDate);
     }
 
-    public void updateOrderDirectoryTotalPrice(int totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
+    public void updateOrderDirectoryTotalPrice(Double totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
         if (totalPrice < 0) {
             throw new IllegalArgumentException("Total price cannot be negative");
         }
@@ -87,6 +91,11 @@ public class OrderService {
         }
         
         orderDirectoryDao.update(totalPrice, orderDirectoryPojo);
+    }
+    public void saveDecodedPdf(String base64Pdf, Integer orderId) throws IOException {
+        byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
+        String filePath = "src/main/resources/output_" + orderId + ".pdf";
+        Files.write(Paths.get(filePath), pdfBytes);
     }
 }
 

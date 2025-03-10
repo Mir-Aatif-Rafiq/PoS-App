@@ -33,9 +33,9 @@ public class DaySalesService {
         
         List<OrderDirectoryPojo> invoicedOrders = daySalesFlow.getOrderByDate(startDate, endDate);
 
-        int totalOrders = invoicedOrders.size();
-        int totalItemsSold = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalItems).sum();
-        int totalRevenue = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalPrice).sum();
+        Integer totalOrders = invoicedOrders.size();
+        Integer totalItemsSold = invoicedOrders.stream().mapToInt(OrderDirectoryPojo::getTotalItems).sum();
+        Double totalRevenue = invoicedOrders.stream().mapToDouble(OrderDirectoryPojo::getTotalPrice).sum();
 
         DaySalesPojo salesReport = new DaySalesPojo();
         salesReport.setTotalInvoicedOrders(totalOrders);
@@ -66,8 +66,8 @@ public class DaySalesService {
 
 //    @Scheduled(cron = "0 */3 * * * *")
 //    public void runDailySalesReport() {
-//        System.out.println("Running daily sales report job...");
+//        System.out.prIntegerln("Running daily sales report job...");
 //        generateDailySalesReport();
-//        System.out.println("Daily sales report job completed.");
+//        System.out.prIntegerln("Daily sales report job completed.");
 //    }
 }

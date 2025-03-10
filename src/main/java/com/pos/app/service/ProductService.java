@@ -35,11 +35,11 @@ public class ProductService {
         productDao.insert(productPojo);
     }
 
-    public ProductPojo getProductById(int productId) {
+    public ProductPojo getProductById(Integer productId) {
         return productDao.selectById(productId);
     }
 
-    public ProductPojo getProductByBarcode(int barcode) {
+    public ProductPojo getProductByBarcode(Integer barcode) {
         return productDao.selectByProductBarcode(barcode);
     }
 
@@ -47,7 +47,7 @@ public class ProductService {
         return productDao.selectAll();
     }
 
-    public void updateProduct(int productId, ProductPojo updatedProductPojo) {
+    public void updateProduct(Integer productId, ProductPojo updatedProductPojo) {
         if (updatedProductPojo == null) {
             throw new IllegalArgumentException("Updated product cannot be null");
         }

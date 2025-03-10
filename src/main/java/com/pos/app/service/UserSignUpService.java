@@ -41,7 +41,7 @@ public class UserSignUpService {
         userDao.insert(userPojo);
     }
     
-    public UserPojo getUserById(int userId) {
+    public UserPojo getUserById(Integer userId) {
         return userDao.select(userId);
     }
     
