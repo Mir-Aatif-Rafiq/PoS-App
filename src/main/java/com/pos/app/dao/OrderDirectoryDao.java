@@ -1,6 +1,7 @@
 package com.pos.app.dao;
 
 import com.pos.app.pojo.OrderDirectoryPojo;
+import org.hibernate.criterion.Order;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -12,17 +13,17 @@ import java.util.List;
 
 @Repository
 @Transactional(rollbackOn = Exception.class)
-public class OrderDirectoryDao extends AbstractDao {
+public class OrderDirectoryDao extends AbstractDao<OrderDirectoryPojo> {
 
     private static final String SELECT_BY_ORDER_ID = "select od from OrderDirectoryPojo od where orderId=:orderId";
     private static final String SELECT_ALL = "select od from OrderDirectoryPojo od";
     private static final String SELECT_BY_DATE = "SELECT od FROM OrderDirectoryPojo od WHERE od.createdAt BETWEEN :startDate AND :endDate";
 
-    @PersistenceContext
-    private EntityManager em;
-
+    public OrderDirectoryDao(){
+        super(OrderDirectoryPojo.class);
+    }
     public void insert(OrderDirectoryPojo orderDirectoryPojo) {
-        em.persist(orderDirectoryPojo);
+        em().persist(orderDirectoryPojo);
     }
 
     public OrderDirectoryPojo select(Integer orderId) {
@@ -46,9 +47,5 @@ public class OrderDirectoryDao extends AbstractDao {
     public void update(Double totalPrice, OrderDirectoryPojo orderDirectoryPojo) {
         OrderDirectoryPojo existingOrderDirectory = select(orderDirectoryPojo.getOrderId());
         existingOrderDirectory.setTotalPrice(totalPrice);
-    }
-
-    public TypedQuery<OrderDirectoryPojo> getQuery(String jpql) {
-        return em.createQuery(jpql, OrderDirectoryPojo.class);
     }
 }

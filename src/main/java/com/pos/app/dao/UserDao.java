@@ -10,13 +10,17 @@ import java.util.List;
 
 @Repository
 @Transactional(rollbackOn = Exception.class)
-public class UserDao extends AbstractDao {
+public class UserDao extends AbstractDao<UserPojo> {
 
     private static final String SELECT_BY_ID = "select u from UserPojo u where id=:id";
     private static final String SELECT_BY_EMAIL = "select u from UserPojo u where email=:email";
     private static final String SELECT_ALL = "select u from UserPojo u";
     private static final String COUNT_BY_ID = "select count(u) from UserPojo u where id=:id";
     private static final String COUNT_BY_EMAIL = "select count(u) from UserPojo u where email=:email";
+
+    public UserDao(){
+        super(UserPojo.class);
+    }
 
     public void insert(UserPojo userPojo) {
         if (emailExists(userPojo.getEmail())) {
@@ -27,9 +31,9 @@ public class UserDao extends AbstractDao {
     }
 
     public UserPojo select(Integer userId) {
-        TypedQuery<UserPojo> query = getQuery(SELECT_BY_ID, UserPojo.class);
+        TypedQuery<UserPojo> query = getQuery(SELECT_BY_ID);
         query.setParameter("id", userId);
-        return getSingle(query);
+        return getSingle(query).orElse(null);
     }
 
     public UserPojo select(String email) {
@@ -37,13 +41,13 @@ public class UserDao extends AbstractDao {
             throw new IllegalArgumentException("Email cannot be empty");
         }
         
-        TypedQuery<UserPojo> query = getQuery(SELECT_BY_EMAIL, UserPojo.class);
+        TypedQuery<UserPojo> query = getQuery(SELECT_BY_EMAIL);
         query.setParameter("email", email);
-        return getSingle(query);
+        return getSingle(query).orElse(null);
     }
 
     public List<UserPojo> selectAll() {
-        TypedQuery<UserPojo> query = getQuery(SELECT_ALL, UserPojo.class);
+        TypedQuery<UserPojo> query = getQuery(SELECT_ALL);
         return query.getResultList();
     }
     

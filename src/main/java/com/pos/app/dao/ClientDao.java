@@ -2,6 +2,7 @@ package com.pos.app.dao;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,26 +15,33 @@ import com.pos.app.pojo.ClientPojo;
 
 @Repository
 @Transactional(rollbackOn = Exception.class)
-public class ClientDao extends AbstractDao {
+public class ClientDao extends AbstractDao<ClientPojo> {
 
     private static final String SELECT_BY_ID = "select c from ClientPojo c where clientId=:clientId";
+    private static final String SELECT_BY_NAME = "select c from ClientPojo c where clientName=:clientName";
     private static final String SELECT_ALL = "select c from ClientPojo c";
     private static final String COUNT_BY_NAME = "select count(c) from ClientPojo c where clientName=:clientName";
 
-    @PersistenceContext
-    private EntityManager em;
-
+    public ClientDao(){
+        super(ClientPojo.class);
+    }
     public void insert(ClientPojo clientPojo) {
         if (clientNameExists(clientPojo.getClientName())) {
             throw new IllegalArgumentException("Client name already exists: " + clientPojo.getClientName());
         }
         
-        em.persist(clientPojo);
+        em().persist(clientPojo);
     }
 
-    public ClientPojo select(Integer clientId) {
+    public ClientPojo selectById(Integer clientId) {
         TypedQuery<ClientPojo> query = getQuery(SELECT_BY_ID);
         query.setParameter("clientId", clientId);
+        return query.getSingleResult();
+    }
+
+    public ClientPojo selectByName(String clientName) {
+        TypedQuery<ClientPojo> query = getQuery(SELECT_BY_NAME);
+        query.setParameter("clientName", clientName);
         return query.getSingleResult();
     }
 
@@ -43,23 +51,20 @@ public class ClientDao extends AbstractDao {
     }
 
     public void update(Integer clientId, ClientPojo clientPojo) {
-        ClientPojo existingClient = this.select(clientId);
+        ClientPojo existingClient = this.selectById(clientId);
         
         if (!clientPojo.getClientName().equals(existingClient.getClientName()) && 
             clientNameExists(clientPojo.getClientName())) {
             throw new IllegalArgumentException("Cannot update: Client name already exists: " + clientPojo.getClientName());
         }
-        
-        existingClient.setClientName(clientPojo.getClientName());
+        if(Objects.nonNull(clientPojo.getClientName())) {
+            existingClient.setClientName(clientPojo.getClientName());
+        }
     }
     
     public boolean clientNameExists(String clientName) {
-        TypedQuery<Long> query = em.createQuery(COUNT_BY_NAME, Long.class);
+        TypedQuery<Long> query = em().createQuery(COUNT_BY_NAME, Long.class);
         query.setParameter("clientName", clientName);
         return query.getSingleResult() > 0;
-    }
-
-    public TypedQuery<ClientPojo> getQuery(String jpql) {
-        return em.createQuery(jpql, ClientPojo.class);
     }
 }
