@@ -2,7 +2,7 @@ package com.pos.app.controller;
 
 import com.pos.app.dto.SalesReportDto;
 import com.pos.app.model.DaySalesData;
-import com.pos.app.model.OrderData;
+import com.pos.app.model.SalesReportData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Api
@@ -23,65 +26,49 @@ public class SalesReportController {
     @Autowired
     private SalesReportDto salesReportDto;
 
-    @ApiOperation(value = "Get sales reports by date range")
-    @RequestMapping(path = "/api/daily-sales/{startDate}/{endDate}", method = RequestMethod.GET)
-    public ResponseEntity<?> getDailySalesByDateRange(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    @ApiOperation(value = "Get all day sales")
+    @RequestMapping(path = "/api/admin/daily-sales", method = RequestMethod.GET)
+    public ResponseEntity<?> getDailySalesByDateRange() {
         try {
-            if (startDate == null || endDate == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date and end date cannot be null");
-            }
-            
-            if (startDate.isAfter(endDate)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date cannot be after end date");
-            }
-            
-            List<DaySalesData> daySalesDataList = salesReportDto.getSalesByDateRange(startDate, endDate);
+            List<DaySalesData> daySalesDataList = salesReportDto.getAllDaySales();
             return ResponseEntity.ok(daySalesDataList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error retrieving sales reports: " + e.getMessage());
+                    .body("Error retrieving sales reports: " + e.getMessage());
         }
     }
 
     @ApiOperation(value = "Generate sales report for date range")
-    @RequestMapping(path = "/api/daily-sales/{startDate}/{endDate}", method = RequestMethod.POST)
-    public ResponseEntity<?> generateDailySalesReport(@PathVariable ZonedDateTime startDate, @PathVariable ZonedDateTime endDate) {
-        try {
-            if (startDate == null || endDate == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date and end date cannot be null");
-            }
-            
-            if (startDate.isAfter(endDate)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date cannot be after end date");
-            }
-            
-            salesReportDto.generateSalesReport(startDate, endDate);
-            return ResponseEntity.ok("Sales report generated successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error generating sales report: " + e.getMessage());
-        }
+    @RequestMapping("/api/admin/sales-report/date/{startDate}/{endDate}")
+    public ResponseEntity<?> generateDailySalesReport(@PathVariable String startDate,
+                                                      @PathVariable String endDate) {
+            LocalDate startLocalDate = LocalDate.parse(startDate, DATE_FORMATTER);
+            LocalDate endLocalDate = LocalDate.parse(endDate, DATE_FORMATTER);
+
+            ZonedDateTime startDateTime = startLocalDate.atStartOfDay(ZoneId.of("UTC"));
+            ZonedDateTime endDateTime = endLocalDate.atStartOfDay(ZoneId.of("UTC"));
+
+            SalesReportData salesReportData = salesReportDto.generateSalesReportForDateRange(startDateTime, endDateTime);
+
+            return ResponseEntity.ok(salesReportData);
     }
 
     @ApiOperation(value = "Generate sales report for client")
-    @RequestMapping(path = "/api/sales-report/{clientId}", method = RequestMethod.POST)
+    @RequestMapping(path = "/api/admin/sales-report/client/{clientId}", method = RequestMethod.GET)
     public ResponseEntity<?> generateSalesReportForClient(@PathVariable Integer clientId) {
-        try {
-            if (clientId == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("clientId cannot be null");
-            }
+        SalesReportData salesReportData = salesReportDto.getSalesReportForClient(clientId);
+        return ResponseEntity.ok(salesReportData);
+    }
 
-            List<OrderData> orderDataList = salesReportDto.getSalesReportForClient(clientId);
-            return ResponseEntity.ok(orderDataList);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error generating sales report: " + e.getMessage());
-        }
+    @ApiOperation(value = "Generate sales report for barcode")
+    @RequestMapping(path = "/api/admin/sales-report/barcode/{barcode}", method = RequestMethod.GET)
+    public ResponseEntity<?> generateSalesReportForBarcode(@PathVariable Integer barcode) {
+        SalesReportData salesReportData = salesReportDto.getSalesReportForBarcode(barcode);
+        return ResponseEntity.ok(salesReportData);
     }
 }
