@@ -3,16 +3,17 @@ package com.pos.app.dto;
 import com.pos.app.flow.SalesReportFlow;
 import com.pos.app.model.DaySalesData;
 import com.pos.app.model.OrderData;
+import com.pos.app.model.SalesReportData;
 import com.pos.app.pojo.DaySalesPojo;
 import com.pos.app.service.DaySalesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 public class SalesReportDto {
 
     @Autowired
@@ -34,26 +35,19 @@ public class SalesReportDto {
         return daySalesData;
     }
 
-    public List<DaySalesData> getSalesByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Start date and end date cannot be null");
-        }
-        
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Start date cannot be after end date");
-        }
-        
-        List<DaySalesPojo> daySalesPojoList = daySalesService.getSalesByDateRange(startDate, endDate);
+    public List<DaySalesData> getAllDaySales() {
+
+        List<DaySalesPojo> daySalesPojoList = daySalesService.getAllDaySales();
         List<DaySalesData> daySalesDataList = new ArrayList<>();
-        
+
         for (DaySalesPojo daySalesPojo : daySalesPojoList) {
             daySalesDataList.add(pojoToData(daySalesPojo));
         }
-        
+
         return daySalesDataList;
     }
 
-    public void generateSalesReport(ZonedDateTime startDate, ZonedDateTime endDate) {
+    public SalesReportData generateSalesReportForDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("Start date and end date cannot be null");
         }
@@ -61,15 +55,51 @@ public class SalesReportDto {
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
-        
-        daySalesService.generateSalesReport(startDate, endDate);
+
+        SalesReportData salesReportData = new SalesReportData();
+        List<OrderData> orderDataList = salesReportFlow.getOrderByDateRange(startDate,endDate);
+        salesReportData.setTotalItemsSold(0);
+        salesReportData.setTotalRevenueGenerated(0.0);
+        for(OrderData orderData :orderDataList ){
+            salesReportData.setTotalRevenueGenerated(salesReportData.getTotalRevenueGenerated() + orderData.getTotalPrice());
+            salesReportData.setTotalItemsSold(salesReportData.getTotalItemsSold() + orderData.getQuantity());
+        }
+
+        return salesReportData;
     }
 
-    public List<OrderData> getSalesReportForClient(Integer clientId) {
+    public SalesReportData getSalesReportForClient(Integer clientId) {
         if (clientId == null) {
             throw new IllegalArgumentException("ClientId cannot be null");
         }
+        SalesReportData salesReportData = new SalesReportData();
+        List<OrderData> orderDataList = salesReportFlow.getOrderByClientId(clientId);
+        salesReportData.setTotalItemsSold(0);
+        salesReportData.setTotalRevenueGenerated(0.0);
+        for(OrderData orderData :orderDataList ){
+            salesReportData.setTotalRevenueGenerated(salesReportData.getTotalRevenueGenerated() + orderData.getTotalPrice());
+            salesReportData.setTotalItemsSold(salesReportData.getTotalItemsSold() + orderData.getQuantity());
+        }
 
-        return salesReportFlow.getOrderByClientId(clientId);
+        System.out.println(salesReportData);
+        System.out.println(salesReportData.getTotalRevenueGenerated());
+        return salesReportData;
+    }
+
+    public SalesReportData getSalesReportForBarcode(Integer barcode) {
+        if (barcode == null) {
+            throw new IllegalArgumentException("Barcode cannot be null");
+        }
+
+        SalesReportData salesReportData = new SalesReportData();
+        List<OrderData> orderDataList = salesReportFlow.getOrderByBarcode(barcode);
+        salesReportData.setTotalItemsSold(0);
+        salesReportData.setTotalRevenueGenerated(0.0);
+        for(OrderData orderData :orderDataList ){
+            salesReportData.setTotalRevenueGenerated(salesReportData.getTotalRevenueGenerated() + orderData.getTotalPrice());
+            salesReportData.setTotalItemsSold(salesReportData.getTotalItemsSold() + orderData.getQuantity());
+        }
+
+        return salesReportData;
     }
 }

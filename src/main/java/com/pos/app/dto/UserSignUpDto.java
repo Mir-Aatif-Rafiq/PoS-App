@@ -6,13 +6,14 @@ import com.pos.app.model.UserSignUpForm;
 import com.pos.app.pojo.UserPojo;
 import com.pos.app.service.UserSignUpService;
 import com.pos.app.util.PasswordHasher;
+import com.pos.app.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 public class UserSignUpDto {
     @Autowired
     private UserSignUpService userSignUpService;
@@ -35,8 +36,8 @@ public class UserSignUpDto {
         }
         
         UserPojo userPojo = new UserPojo();
-        userPojo.setEmail(userSignUpForm.getEmail());
-        userPojo.setName(userSignUpForm.getName());
+        userPojo.setEmail(StringUtil.normalize( userSignUpForm.getEmail()));
+        userPojo.setName(StringUtil.normalize( userSignUpForm.getName()));
         String hashedPassword = PasswordHasher.passwordHasher(userSignUpForm.getPassword());
         userPojo.setPassword(hashedPassword);
 
@@ -66,7 +67,7 @@ public class UserSignUpDto {
         userSignUpService.insertUser(formToPojo(userSignUpForm));
     }
     
-    public UserSignUpData getUserById(Integer userId) {
+    public UserSignUpData getUserById(Integer userId) throws ApiException {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }
@@ -79,7 +80,7 @@ public class UserSignUpDto {
         return pojoToData(userPojo);
     }
 
-    public UserSignUpData getUserByEmail(String email) {
+    public UserSignUpData getUserByEmail(String email) throws ApiException {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
@@ -102,17 +103,5 @@ public class UserSignUpDto {
         }
         
         return userSignUpDataList;
-    }
-    
-    public void updateUserPassword(String email, String newPassword) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-        
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new IllegalArgumentException("New password cannot be empty");
-        }
-        String hashedPassword = PasswordHasher.passwordHasher(newPassword);
-        userSignUpService.updateUserPassword(email, hashedPassword);
     }
 }

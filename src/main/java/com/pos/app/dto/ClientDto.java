@@ -4,13 +4,14 @@ import com.pos.app.model.ClientData;
 import com.pos.app.model.ClientForm;
 import com.pos.app.pojo.ClientPojo;
 import com.pos.app.service.ClientService;
+import com.pos.app.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 public class ClientDto {
     
     @Autowired
@@ -26,7 +27,8 @@ public class ClientDto {
         }
         
         ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setClientName(clientForm.getName());
+        clientPojo.setClientName(StringUtil.normalize(clientForm.getName()));
+        clientPojo.setClientCategory(StringUtil.normalize( clientForm.getCategory()));
         return clientPojo;
     }
     
@@ -38,6 +40,7 @@ public class ClientDto {
         ClientData clientData = new ClientData();
         clientData.setName(clientPojo.getClientName());
         clientData.setId(clientPojo.getClientId());
+        clientData.setCategory(clientPojo.getClientCategory());
         clientData.setCreatedAt(clientPojo.getCreatedAt());
         clientData.setUpdatedAt(clientPojo.getUpdatedAt());
         return clientData;
@@ -51,16 +54,26 @@ public class ClientDto {
         clientService.insertClient(formToPojo(clientForm));
     }
 
-    public ClientData getClient(Integer clientId) {
+    public ClientData getClientById(Integer clientId) {
         if (clientId <= 0) {
             throw new IllegalArgumentException("Client ID must be positive");
         }
         
-        ClientPojo clientPojo = clientService.getClient(clientId);
+        ClientPojo clientPojo = clientService.getClientById(clientId);
         if (clientPojo == null) {
             throw new IllegalArgumentException("Client not found with ID: " + clientId);
         }
         
+        return pojoToData(clientPojo);
+    }
+
+    public ClientData getClientByName(String clientName) {
+
+        ClientPojo clientPojo = clientService.getClientByName(clientName);
+        if (clientPojo == null) {
+            throw new IllegalArgumentException("Client not found with name: " + clientName);
+        }
+
         return pojoToData(clientPojo);
     }
 

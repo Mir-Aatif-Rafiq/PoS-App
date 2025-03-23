@@ -1,5 +1,6 @@
 package com.pos.app.dto;
 
+import com.pos.app.exception.ApiException;
 import com.pos.app.flow.OrderFlow;
 import com.pos.app.model.OrderData;
 import com.pos.app.model.OrderDirectoryData;
@@ -8,12 +9,16 @@ import com.pos.app.pojo.OrderDirectoryPojo;
 import com.pos.app.pojo.OrderPojo;
 import com.pos.app.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
-@Component
+@Service
 public class OrderDto {
 
     @Autowired
@@ -69,7 +74,7 @@ public class OrderDto {
         return orderDirectoryData;
     }
 
-    public void insert(List<OrderForm> orderFormList) {
+    public void insert(List<OrderForm> orderFormList) throws ApiException {
         if (orderFormList == null || orderFormList.isEmpty()) {
             throw new IllegalArgumentException("Order form list cannot be null or empty");
         }
@@ -84,6 +89,10 @@ public class OrderDto {
             OrderPojo orderPojo = formToOrderPojo(orderForm);
             totalPrice += orderPojo.getTotalPrice();
 
+            if(orderPojo.getQuantity() > orderFlow.getQuantity(orderPojo.getProductBarcode())){
+                throw new ApiException("Insufficient inventory for product barcode: "
+                        + orderPojo.getProductBarcode());
+            }
             orderFlow.reduceInventory(orderPojo.getProductBarcode(), orderPojo.getQuantity());
             orderPojo.setOrderId(orderDirectoryPojo.getOrderId());
             orderService.insertOrder(orderPojo);
@@ -154,5 +163,15 @@ public class OrderDto {
         }
         
         return orderDirectoryDataList;
+    }
+
+    public void saveDecodedPdf(String base64Pdf, Integer orderId) throws IOException {
+        byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
+        String filePath = "src/main/resources/output_" + orderId + ".pdf";
+        Files.write(Paths.get(filePath), pdfBytes);
+    }
+
+    public byte[] pdfDecoder(String base64Pdf){
+        return Base64.getDecoder().decode(base64Pdf);
     }
 }

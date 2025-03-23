@@ -5,13 +5,23 @@ import com.pos.app.model.ProductData;
 import com.pos.app.model.ProductForm;
 import com.pos.app.pojo.ProductPojo;
 import com.pos.app.service.ProductService;
+import com.pos.app.util.StringUtil;
+import com.pos.app.util.TSVParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Component
+@Service
 public class ProductDto {
     @Autowired
     private ProductService productService;
@@ -41,13 +51,13 @@ public class ProductDto {
         }
         
         ProductPojo productPojo = new ProductPojo();
-        productPojo.setProductName(productForm.getProductName());
-        productPojo.setClientId(productForm.getClientId());
+        productPojo.setProductName(StringUtil.normalize( productForm.getProductName()));
+        productPojo.setClientId( productForm.getClientId());
         productPojo.setProductBarcode(productForm.getProductBarcode());
-        productPojo.setClientName(productFlow.getClientName(productPojo));
+        productPojo.setClientName(StringUtil.normalize( productFlow.getClientName(productPojo)));
         productPojo.setProductPrice(productForm.getProductPrice());
         productPojo.setProductQuantity(productForm.getProductQuantity());
-        productPojo.setProductImageLink(productForm.getProductImageLink());
+        productPojo.setProductImageLink(StringUtil.normalize( productForm.getProductImageLink()));
         return productPojo;
     }
     
@@ -126,6 +136,29 @@ public class ProductDto {
         }
         
         productService.updateProduct(productId, formToPojo(updatedProductForm));
+    }
+
+    public byte[] uploadInventory(MultipartFile file) throws IOException {
+            if (file == null || file.isEmpty()) {
+                throw new IOException("File cannot be empty");
+            }
+            if (TSVParser.checkTotalLines(file,5000)) {
+                throw new IOException("Updated product form cannot be null");
+            }
+
+            Path filePath = Paths.get("src/main/resources/uploads/" + file.getOriginalFilename());
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            List<ProductPojo> productPojoList = productService.parseTsvFile(file);
+
+            for(ProductPojo productPojo : productPojoList){
+                productPojo.setClientName(productFlow.getClientName(productPojo));
+                productService.insertProduct(productPojo);
+            }
+            File updatedFile = filePath.toFile();
+            byte[] fileContent = Files.readAllBytes(updatedFile.toPath());
+            return fileContent;
     }
 }
 
