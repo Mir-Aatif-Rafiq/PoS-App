@@ -26,5 +26,8 @@ public class OrderFlow {
         productPojo.setProductQuantity(productPojo.getProductQuantity() - quantity);
         productService.updateProduct(productPojo.getProductId(),productPojo);
     }
+    public Integer getQuantity(Integer barcode){
+        return productService.getProductByBarcode(barcode).getProductQuantity();
+    }
 
 }

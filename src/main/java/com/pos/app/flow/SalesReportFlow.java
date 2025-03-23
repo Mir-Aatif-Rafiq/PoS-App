@@ -30,4 +30,20 @@ public class SalesReportFlow {
         }
         return orderDataList;
     }
+    public List<OrderData> getOrderByBarcode(Integer barcode){
+        List<OrderPojo> orderPojoList = orderService.getOrdersByBarcode(barcode);
+        List<OrderData> orderDataList = new ArrayList<OrderData>();
+        for(OrderPojo orderPojo : orderPojoList){
+            orderDataList.add(orderDto.orderPojoToOrderData(orderPojo));
+        }
+        return orderDataList;
+    }
+    public List<OrderData> getOrderByDateRange(ZonedDateTime startDate, ZonedDateTime endDate){
+        List<OrderPojo> orderPojoList = orderService.getOrdersByDateRange(startDate,endDate);
+        List<OrderData> orderDataList = new ArrayList<OrderData>();
+        for(OrderPojo orderPojo : orderPojoList){
+            orderDataList.add(orderDto.orderPojoToOrderData(orderPojo));
+        }
+        return orderDataList;
+    }
 }

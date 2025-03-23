@@ -14,11 +14,11 @@ public class ProductFlow {
     ClientService clientService;
 
     public ClientPojo getClientPojo(Integer client_id){
-        return clientService.getClient(client_id);
+        return clientService.getClientById(client_id);
     }
 
     public String getClientName(ProductPojo productPojo) {
-        return clientService.getClient(productPojo.getClientId()).getClientName();
+        return clientService.getClientById(productPojo.getClientId()).getClientName();
     }
 
 }
