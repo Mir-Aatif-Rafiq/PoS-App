@@ -18,6 +18,10 @@ import java.util.Properties;
 @Configuration
 public class DBConfig {
     public static final String PACKAGE_POJO = "com.pos.app.pojo";
+    private static final String VALIDATION_QUERY = "SELECT 1";
+    private static final String HIBERNATE_DIALECT = "hibernate.dialect";
+    private static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
+    private static final String HIBERNATE_HBM2DDL = "hibernate.hbm2ddl.auto";
 
     @Value("${jdbc.driverClassName}")
     private String jdbcDriver;
@@ -35,7 +39,7 @@ public class DBConfig {
     private String hibernateHbm2ddl;
 
 
-    @Bean(name = "dataSource")
+    @Bean
     public DataSource getDataSource() {
         BasicDataSource bean = new BasicDataSource();
         bean.setDriverClassName(jdbcDriver);
@@ -45,13 +49,13 @@ public class DBConfig {
         bean.setInitialSize(2);
         bean.setDefaultAutoCommit(false);
         bean.setMinIdle(2);
-        bean.setValidationQuery("Select 1");
+        bean.setValidationQuery(VALIDATION_QUERY);
         bean.setTestWhileIdle(true);
         bean.setTimeBetweenEvictionRunsMillis(10 * 60 * 100);
         return bean;
     }
 
-    @Bean(name = "entityManagerFactory")
+    @Bean
     @Autowired
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
@@ -60,10 +64,10 @@ public class DBConfig {
         HibernateJpaVendorAdapter jpaAdapter = new HibernateJpaVendorAdapter();
         bean.setJpaVendorAdapter(jpaAdapter);
         Properties jpaProperties = new Properties();
-        jpaProperties.put("hibernate.dialect", hibernateDialect);
-        jpaProperties.put("hibernate.show_sql", hibernateShowSql);
-        jpaProperties.put("hibernate.hbm2ddl.auto", hibernateHbm2ddl);
-        jpaProperties.put("hibernate.hbm2ddl.auto", hibernateHbm2ddl);
+        jpaProperties.put(HIBERNATE_DIALECT, hibernateDialect);
+        jpaProperties.put(HIBERNATE_SHOW_SQL, hibernateShowSql);
+        jpaProperties.put(HIBERNATE_HBM2DDL, hibernateHbm2ddl);
+        jpaProperties.put(HIBERNATE_HBM2DDL, hibernateHbm2ddl);
         bean.setJpaProperties(jpaProperties);
         return bean;
     }

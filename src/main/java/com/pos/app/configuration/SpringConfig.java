@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan("com.pos.app")
 @EnableScheduling
 @PropertySources({
-        @PropertySource(value = "file:./pos_app.properties", ignoreResourceNotFound = false)
+        @PropertySource(value = "classpath:pos_app.properties", ignoreResourceNotFound = false)
 })
 public class SpringConfig {
 }
