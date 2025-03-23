@@ -7,7 +7,7 @@ import javax.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Users", uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
     @UniqueConstraint(columnNames = "email", name = "uk_user_email")
 })
 @Setter

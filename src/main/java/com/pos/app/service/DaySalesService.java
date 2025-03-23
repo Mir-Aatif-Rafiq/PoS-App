@@ -5,6 +5,7 @@ import com.pos.app.flow.SalesReportFlow;
 import com.pos.app.pojo.DaySalesPojo;
 import com.pos.app.pojo.OrderDirectoryPojo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,7 +30,6 @@ public class DaySalesService {
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
-        
         List<OrderDirectoryPojo> invoicedOrders = salesReportFlow.getOrderByDate(startDate, endDate);
 
         Integer totalOrders = invoicedOrders.size();
@@ -51,22 +51,14 @@ public class DaySalesService {
         generateSalesReport(todayStart, todayEnd);
     }
 
-    public List<DaySalesPojo> getSalesByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Start date and end date cannot be null");
-        }
-        
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Start date cannot be after end date");
-        }
-        
-        return daySalesDao.findByDateRange(startDate, endDate);
+    public List<DaySalesPojo> getAllDaySales(){
+        return daySalesDao.getAll();
     }
-
-//    @Scheduled(cron = "0 */3 * * * *")
+//
+//    @Scheduled(cron = "*/10 * * * * *")
 //    public void runDailySalesReport() {
-//        System.out.prIntegerln("Running daily sales report job...");
+//        System.out.println("Running daily sales report job...");
 //        generateDailySalesReport();
-//        System.out.prIntegerln("Daily sales report job completed.");
+//        System.out.println("Daily sales report job completed.");
 //    }
 }

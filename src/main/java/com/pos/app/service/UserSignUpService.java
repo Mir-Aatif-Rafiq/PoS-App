@@ -56,21 +56,4 @@ public class UserSignUpService {
     public List<UserPojo> getAllUsers() {
         return userDao.selectAll();
     }
-    
-    public void updateUserPassword(String email, String newPassword) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-        
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new IllegalArgumentException("New password cannot be empty");
-        }
-        
-        UserPojo userPojo = userDao.select(email);
-        if (userPojo == null) {
-            throw new IllegalArgumentException("User not found with email: " + email);
-        }
-        
-        userPojo.setPassword(newPassword);
-    }
 }

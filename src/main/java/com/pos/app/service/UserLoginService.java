@@ -5,7 +5,6 @@ import com.pos.app.pojo.UserPojo;
 import com.pos.app.util.PasswordHasher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.transaction.Transactional;
 

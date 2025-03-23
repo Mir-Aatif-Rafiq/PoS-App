@@ -61,6 +61,14 @@ public class OrderService {
         return orderDao.selectByClientId(clientId);
     }
 
+    public List<OrderPojo> getOrdersByBarcode(Integer barcode) {
+        return orderDao.selectByBarcode(barcode);
+    }
+
+    public List<OrderPojo> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        return orderDao.selectByDateRange(startDate,endDate);
+    }
+
     public OrderDirectoryPojo getOrderDirectory(Integer orderId) {
         return orderDirectoryDao.select(orderId);
     }
@@ -95,11 +103,6 @@ public class OrderService {
         }
         
         orderDirectoryDao.update(totalPrice, orderDirectoryPojo);
-    }
-    public void saveDecodedPdf(String base64Pdf, Integer orderId) throws IOException {
-        byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
-        String filePath = "src/main/resources/output_" + orderId + ".pdf";
-        Files.write(Paths.get(filePath), pdfBytes);
     }
 }
 

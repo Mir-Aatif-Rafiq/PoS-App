@@ -8,10 +8,10 @@ import jakarta.validation.constraints.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "Day_sales")
+@Table(name = "day_sales")
 @Setter
 @Getter
-public class DaySalesPojo {
+public class DaySalesPojo extends AbstractPojo{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

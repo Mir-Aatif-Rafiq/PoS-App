@@ -27,8 +27,12 @@ public class ClientService {
         clientDao.insert(clientPojo);
     }
     
-    public ClientPojo getClient(Integer clientId) {
-        return clientDao.select(clientId);
+    public ClientPojo getClientById(Integer clientId) {
+        return clientDao.selectById(clientId);
+    }
+
+    public ClientPojo getClientByName(String clientName) {
+        return clientDao.selectByName(clientName);
     }
 
     public List<ClientPojo> getAllClients() {

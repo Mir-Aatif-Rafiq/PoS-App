@@ -7,7 +7,7 @@ import javax.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Order_directory")
+@Table(name = "order_directory")
 @Setter
 @Getter
 public class OrderDirectoryPojo extends AbstractPojo {

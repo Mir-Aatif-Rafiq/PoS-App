@@ -7,7 +7,7 @@ import javax.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Clients", uniqueConstraints = {
+@Table(name = "clients", uniqueConstraints = {
     @UniqueConstraint(columnNames = "client_name", name = "uk_client_name")
 })
 @Setter
@@ -22,5 +22,10 @@ public class ClientPojo extends AbstractPojo {
     @Size(min = 2, max = 100, message = "Client name must be between 2 and 100 characters")
     @Column(name = "client_name")
     private String clientName;
+
+    @NotBlank(message = "Client category cannot be blank")
+    @Size(min = 2, max = 100, message = "Client category must be between 2 and 100 characters")
+    @Column(name = "client_category")
+    private String clientCategory;
 }
 
