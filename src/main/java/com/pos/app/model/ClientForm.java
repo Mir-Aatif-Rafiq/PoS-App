@@ -11,4 +11,7 @@ public class ClientForm {
     @NotBlank(message = "Client name cannot be blank")
     @Size(min = 2, max = 100, message = "Client name must be between 2 and 100 characters")
     private String name;
+    @NotBlank(message = "Client category cannot be blank")
+    @Size(min = 2, max = 100, message = "Client category must be between 2 and 100 characters")
+    private String category;
 }
